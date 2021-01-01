@@ -8,8 +8,17 @@ const FBAuth = require('./utility/fbAuth');
 const groupAuth = require('./utility/groupAuth');
 
 const { signup, login, getOwnUserDetails } = require('./handlers/users');
-const { getGroup, createGroup } = require('./handlers/groups');
-const { getTrip, createTrip } = require('./handlers/trips');
+const {
+  getGroup,
+  createGroup,
+  removeUserFromGroup,
+} = require('./handlers/groups');
+const {
+  getTrip,
+  createTrip,
+  createComment,
+  deleteComment,
+} = require('./handlers/trips');
 const {
   inviteUser,
   acceptInvite,
@@ -24,10 +33,28 @@ app.get('/users/:userHandle', FBAuth, getOwnUserDetails);
 // Group routes
 app.get('/groups/:groupID', FBAuth, getGroup);
 app.post('/groups', FBAuth, createGroup);
+app.delete(
+  '/groups/:groupID/users/:userHandle',
+  FBAuth,
+  groupAuth,
+  removeUserFromGroup
+);
 
 // Trip routes
 app.get('/groups/:groupID/trips/:tripID', FBAuth, groupAuth, getTrip);
 app.post('/groups/:groupID/trips', FBAuth, groupAuth, createTrip);
+app.post(
+  '/groups/:groupID/trips/:tripID/comment',
+  FBAuth,
+  groupAuth,
+  createComment
+);
+app.delete(
+  '/groups/:groupID/trips/:tripID/comments/:commentID',
+  FBAuth,
+  groupAuth,
+  deleteComment
+);
 
 // Invite routes
 app.post('/groups/:groupID/invite', FBAuth, inviteUser);

@@ -1,6 +1,6 @@
-const { db } = require('../utility/admin');
+const { db, admin } = require('../utility/admin');
 
-// get data for a group
+// Get data for a group
 
 exports.getGroup = (req, res) => {
   let groupData = {};
@@ -58,5 +58,41 @@ exports.createGroup = (req, res) => {
     .catch((err) => {
       res.status(500).json({ error: 'Something went wrong' });
       console.error(err);
+    });
+};
+
+// Remove User From Group
+
+exports.removeUserFromGroup = (req, res) => {
+  db.doc(`/groups/${req.params.groupID}`)
+    .get()
+    .then((doc) => {
+      if (!doc.exists) {
+        return res.status(404).json({ error: 'Group not found' });
+      }
+      if (!doc.data().members.includes(req.params.userHandle)) {
+        return res
+          .status(404)
+          .json({ invite: 'That user is not a group member' });
+      } else {
+        return db
+          .doc(`/groups/${req.params.groupID}`)
+          .update({
+            members: admin.firestore.FieldValue.arrayRemove(
+              req.params.userHandle
+            ),
+          })
+          .then(() => {
+            return res.json({ message: 'User removed from group' });
+          })
+          .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+          });
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
     });
 };
