@@ -8,7 +8,6 @@ firebase.initializeApp(config);
 const {
   validateSignupData,
   validateLoginData,
-  reduceUserDetails,
 } = require('../utility/validators');
 
 // sign up new user
@@ -99,5 +98,34 @@ exports.login = (req, res) => {
           .status(403)
           .json({ password: 'Wrong credentials, please try again' });
       } else return res.status(500).json({ error: err.code });
+    });
+};
+
+exports.getOwnUserDetails = (req, res) => {
+  let userData = {};
+  db.doc(`/users/${req.user.handle}`)
+    .get()
+    .then((doc) => {
+      if (doc.exists) {
+        userData.credentials = doc.data();
+        return db
+          .collection('groups')
+          .where('members', 'array-contains', req.user.handle)
+          .orderBy('createdAt', 'desc')
+          .get();
+      } else {
+        return res.status(404).json({ error: 'User not found' });
+      }
+    })
+    .then((data) => {
+      userData.groups = [];
+      data.forEach((doc) => {
+        userData.groups.push(doc.data());
+      });
+      return res.json(userData);
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
     });
 };
