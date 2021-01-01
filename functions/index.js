@@ -18,6 +18,8 @@ const {
   createTrip,
   createComment,
   deleteComment,
+  createPin,
+  deletePin,
 } = require('./handlers/trips');
 const {
   inviteUser,
@@ -54,6 +56,13 @@ app.delete(
   FBAuth,
   groupAuth,
   deleteComment
+);
+app.post('/groups/:groupID/trips/:tripID/pin', FBAuth, groupAuth, createPin);
+app.delete(
+  '/groups/:groupID/trips/:tripID/pins/:pinID',
+  FBAuth,
+  groupAuth,
+  deletePin
 );
 
 // Invite routes

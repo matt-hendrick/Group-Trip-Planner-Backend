@@ -156,3 +156,81 @@ exports.deleteComment = (req, res) => {
       console.error(err);
     });
 };
+
+// Create Pin
+
+exports.createPin = (req, res) => {
+  if (req.body.body.trim() === '') {
+    return res.status(400).json({ body: 'Body must not be empty' });
+  }
+
+  const newPin = {
+    body: req.body.body,
+    location: req.body.location ? req.body.location : null,
+    userHandle: req.user.handle,
+    createdAt: new Date().toISOString(),
+    likeCount: 0,
+    commentCount: 0,
+  };
+
+  db.doc(`/groups/${req.params.groupID}/trips/${req.params.tripID}`)
+    .get()
+    .then((doc) => {
+      if (!doc.exists) {
+        return res.status(404).json({ error: 'Trip not found' });
+      } else {
+        return db
+          .collection(
+            `/groups/${req.params.groupID}/trips/${req.params.tripID}/pins`
+          )
+          .add(newPin)
+          .then((doc) => {
+            const resPin = newPin;
+            resPin.pinID = doc.id;
+            res.json(resPin);
+          })
+          .catch((err) => {
+            res.status(500).json({ error: 'Something went wrong' });
+            console.error(err);
+          });
+      }
+    })
+    .catch((err) => {
+      res.status(500).json({ error: 'Something went wrong' });
+      console.error(err);
+    });
+};
+
+// Delete Pin
+
+exports.deletePin = (req, res) => {
+  db.doc(
+    `/groups/${req.params.groupID}/trips/${req.params.tripID}/pins/${req.params.pinID}`
+  )
+    .get()
+    .then((doc) => {
+      if (!doc.exists) {
+        return res.status(404).json({ error: 'Pin not found' });
+      }
+      if (doc.data().userHandle !== req.user.handle) {
+        return res.status(403).json({ error: 'Unauthorized' });
+      } else {
+        return db
+          .doc(
+            `/groups/${req.params.groupID}/trips/${req.params.tripID}/pins/${req.params.pinID}`
+          )
+          .delete()
+          .then(() => {
+            res.json({ message: 'Pin deleted successfully' });
+          })
+          .catch((err) => {
+            res.status(500).json({ error: 'Something went wrong' });
+            console.error(err);
+          });
+      }
+    })
+    .catch((err) => {
+      res.status(500).json({ error: 'Something went wrong' });
+      console.error(err);
+    });
+};
