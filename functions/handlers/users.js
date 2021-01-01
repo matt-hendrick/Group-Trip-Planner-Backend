@@ -117,10 +117,21 @@ exports.getOwnUserDetails = (req, res) => {
         return res.status(404).json({ error: 'User not found' });
       }
     })
-    .then((data) => {
+    .then((collection) => {
       userData.groups = [];
-      data.forEach((doc) => {
+      collection.forEach((doc) => {
         userData.groups.push(doc.data());
+      });
+      return db
+        .collection('invites')
+        .where('recipient', '==', req.user.handle)
+        .orderBy('createdAt', 'desc')
+        .get();
+    })
+    .then((collection) => {
+      userData.invites = [];
+      collection.forEach((doc) => {
+        userData.invites.push(doc.data());
       });
       return res.json(userData);
     })

@@ -33,3 +33,30 @@ exports.getGroup = (req, res) => {
       res.status(500).json({ error: err.code });
     });
 };
+
+// Create Group
+
+exports.createGroup = (req, res) => {
+  if (req.body.groupName.trim() === '') {
+    return res.status(400).json({ groupName: 'Group name must not be empty' });
+  }
+
+  const newGroup = {
+    groupName: req.body.groupName,
+    createdBy: req.user.handle,
+    createdAt: new Date().toISOString(),
+    members: [req.user.handle],
+    pendingInvites: [],
+  };
+  db.collection('groups')
+    .add(newGroup)
+    .then((doc) => {
+      const resGroup = newGroup;
+      resGroup.groupID = doc.id;
+      res.json(resGroup);
+    })
+    .catch((err) => {
+      res.status(500).json({ error: 'Something went wrong' });
+      console.error(err);
+    });
+};

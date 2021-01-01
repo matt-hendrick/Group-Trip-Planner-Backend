@@ -3,23 +3,9 @@ const { db } = require('../utility/admin');
 // get data for a trip
 
 exports.getTrip = (req, res) => {
-  let groupData = {};
   let tripData = {};
-  db.doc(`/groups/${req.params.groupID}`)
+  db.doc(`/groups/${req.params.groupID}/trips/${req.params.tripID}`)
     .get()
-    .then((doc) => {
-      if (!doc.exists) {
-        return res.status(404).json({ error: 'Group not found' });
-      }
-      groupData = doc.data();
-      groupData.groupID = doc.id;
-      if (!groupData.members.includes(req.user.handle)) {
-        return res.status(403).json({ user: 'User is not a group member' });
-      }
-      return db
-        .doc(`/groups/${req.params.groupID}/trips/${req.params.tripID}`)
-        .get();
-    })
     .then((doc) => {
       if (!doc.exists) {
         return res.status(404).json({ error: 'Trip not found' });
@@ -64,5 +50,32 @@ exports.getTrip = (req, res) => {
     .catch((err) => {
       console.log(err);
       res.status(500).json({ error: err.code });
+    });
+};
+
+// Create Trip
+
+exports.createTrip = (req, res) => {
+  if (req.body.tripName.trim() === '') {
+    return res.status(400).json({ tripName: 'Trip name must not be empty' });
+  }
+
+  const newTrip = {
+    tripName: req.body.tripName,
+    createdBy: req.user.handle,
+    destination: req.body.destination ? req.body.destination : null,
+    mapZoomLevel: 8,
+    createdAt: new Date().toISOString(),
+  };
+  db.collection(`/groups/${req.params.groupID}/trips`)
+    .add(newTrip)
+    .then((doc) => {
+      const resTrip = newTrip;
+      resTrip.tripID = doc.id;
+      res.json(resTrip);
+    })
+    .catch((err) => {
+      res.status(500).json({ error: 'Something went wrong' });
+      console.error(err);
     });
 };
