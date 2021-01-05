@@ -30,7 +30,7 @@ const {
 // User routes
 app.post('/signup', signup);
 app.post('/login', login);
-app.get('/users/:userHandle', FBAuth, getOwnUserDetails);
+app.get('/user', FBAuth, getOwnUserDetails);
 
 // Group routes
 app.get('/groups/:groupID', FBAuth, getGroup);

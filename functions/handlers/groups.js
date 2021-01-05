@@ -4,6 +4,7 @@ const { db, admin } = require('../utility/admin');
 
 exports.getGroup = (req, res) => {
   let groupData = {};
+  let tripData = {};
   db.doc(`/groups/${req.params.groupID}`)
     .get()
     .then((doc) => {
@@ -24,7 +25,9 @@ exports.getGroup = (req, res) => {
     .then((collection) => {
       groupData.trips = [];
       collection.forEach((doc) => {
-        groupData.trips.push(doc.data());
+        tripData = doc.data();
+        tripData.tripID = doc.id;
+        groupData.trips.push(tripData);
       });
       return res.json(groupData);
     })

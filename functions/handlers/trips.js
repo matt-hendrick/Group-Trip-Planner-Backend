@@ -4,6 +4,9 @@ const { db } = require('../utility/admin');
 
 exports.getTrip = (req, res) => {
   let tripData = {};
+  let pinData = {};
+  let commentData = {};
+  let listData = {};
   db.doc(`/groups/${req.params.groupID}/trips/${req.params.tripID}`)
     .get()
     .then((doc) => {
@@ -21,7 +24,9 @@ exports.getTrip = (req, res) => {
     .then((collection) => {
       tripData.pins = [];
       collection.forEach((doc) => {
-        tripData.pins.push(doc.data());
+        pinData = doc.data();
+        pinData.pinID = doc.id;
+        tripData.pins.push(pinData);
       });
       return db
         .doc(`/groups/${req.params.groupID}/trips/${req.params.tripID}`)
@@ -32,7 +37,9 @@ exports.getTrip = (req, res) => {
     .then((collection) => {
       tripData.comments = [];
       collection.forEach((doc) => {
-        tripData.comments.push(doc.data());
+        commentData = doc.data();
+        commentData.commentID = doc.id;
+        tripData.comments.push(commentData);
       });
       return db
         .doc(`/groups/${req.params.groupID}/trips/${req.params.tripID}`)
@@ -43,7 +50,9 @@ exports.getTrip = (req, res) => {
     .then((collection) => {
       tripData.lists = [];
       collection.forEach((doc) => {
-        tripData.lists.push(doc.data());
+        listData = doc.data();
+        listData.listID = doc.id;
+        tripData.lists.push(listData);
       });
       return res.json(tripData);
     })
@@ -66,6 +75,7 @@ exports.createTrip = (req, res) => {
     destination: req.body.destination ? req.body.destination : null,
     mapZoomLevel: 8,
     createdAt: new Date().toISOString(),
+    groupID: req.params.groupID,
   };
   db.collection(`/groups/${req.params.groupID}/trips`)
     .add(newTrip)
@@ -93,6 +103,8 @@ exports.createComment = (req, res) => {
     createdAt: new Date().toISOString(),
     likeCount: 0,
     commentCount: 0,
+    groupID: req.params.groupID,
+    tripID: req.params.tripID,
   };
 
   db.doc(`/groups/${req.params.groupID}/trips/${req.params.tripID}`)
@@ -171,6 +183,8 @@ exports.createPin = (req, res) => {
     createdAt: new Date().toISOString(),
     likeCount: 0,
     commentCount: 0,
+    groupID: req.params.groupID,
+    tripID: req.params.tripID,
   };
 
   db.doc(`/groups/${req.params.groupID}/trips/${req.params.tripID}`)

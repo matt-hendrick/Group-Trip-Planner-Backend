@@ -103,6 +103,8 @@ exports.login = (req, res) => {
 
 exports.getOwnUserDetails = (req, res) => {
   let userData = {};
+  let groupData = {};
+  let inviteData = {};
   db.doc(`/users/${req.user.handle}`)
     .get()
     .then((doc) => {
@@ -120,7 +122,9 @@ exports.getOwnUserDetails = (req, res) => {
     .then((collection) => {
       userData.groups = [];
       collection.forEach((doc) => {
-        userData.groups.push(doc.data());
+        groupData = doc.data();
+        groupData.groupID = doc.id;
+        userData.groups.push(groupData);
       });
       return db
         .collection('invites')
@@ -131,7 +135,9 @@ exports.getOwnUserDetails = (req, res) => {
     .then((collection) => {
       userData.invites = [];
       collection.forEach((doc) => {
-        userData.invites.push(doc.data());
+        inviteData = doc.data();
+        inviteData.inviteID = doc.id;
+        userData.invites.push(inviteData);
       });
       return res.json(userData);
     })
