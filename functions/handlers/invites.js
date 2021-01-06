@@ -3,12 +3,11 @@ const { db, admin } = require('../utility/admin');
 // Invite User
 
 exports.inviteUser = (req, res) => {
+  let groupName = '';
   const inviteData = {
     recipient: req.body.recipient,
     sender: req.user.handle,
     createdAt: new Date().toISOString(),
-    rejected: false,
-    accepted: false,
     groupID: req.params.groupID,
   };
   db.doc(`/groups/${req.params.groupID}`)
@@ -30,6 +29,7 @@ exports.inviteUser = (req, res) => {
           .status(404)
           .json({ invite: 'That user has already been invited to the group' });
       } else {
+        groupName = doc.data().groupName;
         return db
           .doc(`/users/${req.body.recipient}`)
           .get()
@@ -47,6 +47,7 @@ exports.inviteUser = (req, res) => {
                   ),
                 })
                 .then(() => {
+                  inviteData.groupName = groupName;
                   return db.collection('invites').add(inviteData);
                 })
                 .then(() => {
