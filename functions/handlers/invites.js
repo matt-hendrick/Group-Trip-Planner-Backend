@@ -3,33 +3,33 @@ const { db, admin } = require('../utility/admin');
 // Invite User
 
 exports.inviteUser = (req, res) => {
-  let groupName = '';
+  let tripName = '';
   const inviteData = {
     recipient: req.body.recipient,
     sender: req.user.handle,
     createdAt: new Date().toISOString(),
-    groupID: req.params.groupID,
+    tripID: req.params.tripID,
   };
-  db.doc(`/groups/${req.params.groupID}`)
+  db.doc(`/trips/${req.params.tripID}`)
     .get()
     .then((doc) => {
       if (!doc.exists) {
-        return res.status(404).json({ error: 'Group not found' });
+        return res.status(404).json({ error: 'Trip not found' });
       }
       if (!doc.data().members.includes(req.user.handle)) {
-        return res.status(403).json({ user: 'User is not a group member' });
+        return res.status(403).json({ user: 'User is not a trip member' });
       }
       if (doc.data().members.includes(req.body.recipient)) {
         return res
           .status(404)
-          .json({ invite: 'That user is already a group member' });
+          .json({ invite: 'That user is already a trip member' });
       }
       if (doc.data().pendingInvites.includes(req.body.recipient)) {
         return res
           .status(404)
-          .json({ invite: 'That user has already been invited to the group' });
+          .json({ invite: 'That user has already been invited to the trip' });
       } else {
-        groupName = doc.data().groupName;
+        tripName = doc.data().tripName;
         return db
           .doc(`/users/${req.body.recipient}`)
           .get()
@@ -37,17 +37,17 @@ exports.inviteUser = (req, res) => {
             if (!doc.exists) {
               return res
                 .status(404)
-                .json({ error: 'There is no user with that handle' });
+                .json({ invite: 'There is no user with that handle' });
             } else {
               return db
-                .doc(`/groups/${req.params.groupID}`)
+                .doc(`/trips/${req.params.tripID}`)
                 .update({
                   pendingInvites: admin.firestore.FieldValue.arrayUnion(
                     req.body.recipient
                   ),
                 })
                 .then(() => {
-                  inviteData.groupName = groupName;
+                  inviteData.tripName = tripName;
                   return db.collection('invites').add(inviteData);
                 })
                 .then(() => {
@@ -74,24 +74,24 @@ exports.inviteUser = (req, res) => {
 // Accept Invite
 
 exports.acceptInvite = (req, res) => {
-  db.doc(`/groups/${req.params.groupID}`)
+  db.doc(`/trips/${req.params.tripID}`)
     .get()
     .then((doc) => {
       if (!doc.exists) {
-        return res.status(404).json({ error: 'Group not found' });
+        return res.status(404).json({ error: 'Trip not found' });
       }
       if (doc.data().members.includes(req.user.handle)) {
         return res
           .status(404)
-          .json({ invite: 'That user is already a group member' });
+          .json({ invite: 'That user is already a trip member' });
       }
       if (!doc.data().pendingInvites.includes(req.user.handle)) {
         return res
           .status(404)
-          .json({ invite: 'That user has not been invited to the group' });
+          .json({ invite: 'That user has not been invited to the trip' });
       } else {
         return db
-          .doc(`/groups/${req.params.groupID}`)
+          .doc(`/trips/${req.params.tripID}`)
           .update({
             pendingInvites: admin.firestore.FieldValue.arrayRemove(
               req.user.handle
@@ -135,24 +135,24 @@ exports.acceptInvite = (req, res) => {
 // Reject Invite
 
 exports.rejectInvite = (req, res) => {
-  db.doc(`/groups/${req.params.groupID}`)
+  db.doc(`/trips/${req.params.tripID}`)
     .get()
     .then((doc) => {
       if (!doc.exists) {
-        return res.status(404).json({ error: 'Group not found' });
+        return res.status(404).json({ error: 'Trip not found' });
       }
       if (doc.data().members.includes(req.user.handle)) {
         return res
           .status(404)
-          .json({ invite: 'That user is already a group member' });
+          .json({ invite: 'That user is already a trip member' });
       }
       if (!doc.data().pendingInvites.includes(req.user.handle)) {
         return res
           .status(404)
-          .json({ invite: 'That user has not been invited to the group' });
+          .json({ invite: 'That user has not been invited to the trip' });
       } else {
         return db
-          .doc(`/groups/${req.params.groupID}`)
+          .doc(`/trips/${req.params.tripID}`)
           .update({
             pendingInvites: admin.firestore.FieldValue.arrayRemove(
               req.user.handle

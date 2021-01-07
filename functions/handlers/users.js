@@ -103,7 +103,7 @@ exports.login = (req, res) => {
 
 exports.getOwnUserDetails = (req, res) => {
   let userData = {};
-  let groupData = {};
+  let tripData = {};
   let inviteData = {};
   db.doc(`/users/${req.user.handle}`)
     .get()
@@ -111,7 +111,7 @@ exports.getOwnUserDetails = (req, res) => {
       if (doc.exists) {
         userData.credentials = doc.data();
         return db
-          .collection('groups')
+          .collection('trips')
           .where('members', 'array-contains', req.user.handle)
           .orderBy('createdAt', 'desc')
           .get();
@@ -120,11 +120,11 @@ exports.getOwnUserDetails = (req, res) => {
       }
     })
     .then((collection) => {
-      userData.groups = [];
+      userData.trips = [];
       collection.forEach((doc) => {
-        groupData = doc.data();
-        groupData.groupID = doc.id;
-        userData.groups.push(groupData);
+        tripData = doc.data();
+        tripData.tripID = doc.id;
+        userData.trips.push(tripData);
       });
       return db
         .collection('invites')

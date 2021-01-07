@@ -1,12 +1,12 @@
 {
   "indexes": [
     {
-      "collectionGroup": "groups",
+      "collectionGroup": "invites",
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "members",
-          "arrayConfig": "CONTAINS"
+          "fieldPath": "recipient",
+          "order": "ASCENDING"
         },
         {
           "fieldPath": "createdAt",
@@ -15,12 +15,12 @@
       ]
     },
     {
-      "collectionGroup": "invites",
+      "collectionGroup": "trips",
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "recipient",
-          "order": "ASCENDING"
+          "fieldPath": "members",
+          "arrayConfig": "CONTAINS"
         },
         {
           "fieldPath": "createdAt",

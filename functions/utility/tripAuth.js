@@ -1,18 +1,18 @@
 const { db } = require('./admin');
 
 module.exports = (req, res, next) => {
-  db.doc(`/groups/${req.params.groupID}`)
+  db.doc(`/trips/${req.params.tripID}`)
     .get()
     .then((doc) => {
       if (!doc.exists) {
-        return res.status(404).json({ error: 'Group not found' });
+        return res.status(404).json({ error: 'Trip not found' });
       }
       if (!doc.data().members.includes(req.user.handle)) {
-        return res.status(403).json({ user: 'User is not a group member' });
+        return res.status(403).json({ user: 'User is not a trip member' });
       } else return next();
     })
     .catch((err) => {
-      console.error('Error while verifying group', err);
+      console.error('Error while verifying trip', err);
       return res.status(403).json(err);
     });
 };

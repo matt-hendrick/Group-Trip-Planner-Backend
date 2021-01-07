@@ -7,7 +7,7 @@ exports.getTrip = (req, res) => {
   let pinData = {};
   let commentData = {};
   let listData = {};
-  db.doc(`/groups/${req.params.groupID}/trips/${req.params.tripID}`)
+  db.doc(`/trips/${req.params.tripID}`)
     .get()
     .then((doc) => {
       if (!doc.exists) {
@@ -16,7 +16,7 @@ exports.getTrip = (req, res) => {
       tripData = doc.data();
       tripData.tripID = doc.id;
       return db
-        .doc(`/groups/${req.params.groupID}/trips/${req.params.tripID}`)
+        .doc(`/trips/${req.params.tripID}`)
         .collection('pins')
         .orderBy('createdAt', 'desc')
         .get();
@@ -29,7 +29,7 @@ exports.getTrip = (req, res) => {
         tripData.pins.push(pinData);
       });
       return db
-        .doc(`/groups/${req.params.groupID}/trips/${req.params.tripID}`)
+        .doc(`/trips/${req.params.tripID}`)
         .collection('comments')
         .orderBy('createdAt', 'desc')
         .get();
@@ -42,7 +42,7 @@ exports.getTrip = (req, res) => {
         tripData.comments.push(commentData);
       });
       return db
-        .doc(`/groups/${req.params.groupID}/trips/${req.params.tripID}`)
+        .doc(`/trips/${req.params.tripID}`)
         .collection('lists')
         .orderBy('createdAt', 'desc')
         .get();
@@ -75,9 +75,10 @@ exports.createTrip = (req, res) => {
     destination: req.body.destination ? req.body.destination : null,
     mapZoomLevel: 8,
     createdAt: new Date().toISOString(),
-    groupID: req.params.groupID,
+    members: [req.user.handle],
+    pendingInvites: [],
   };
-  db.collection(`/groups/${req.params.groupID}/trips`)
+  db.collection(`/trips`)
     .add(newTrip)
     .then((doc) => {
       const resTrip = newTrip;
@@ -103,20 +104,17 @@ exports.createComment = (req, res) => {
     createdAt: new Date().toISOString(),
     likeCount: 0,
     commentCount: 0,
-    groupID: req.params.groupID,
     tripID: req.params.tripID,
   };
 
-  db.doc(`/groups/${req.params.groupID}/trips/${req.params.tripID}`)
+  db.doc(`/trips/${req.params.tripID}`)
     .get()
     .then((doc) => {
       if (!doc.exists) {
         return res.status(404).json({ error: 'Trip not found' });
       } else {
         return db
-          .collection(
-            `/groups/${req.params.groupID}/trips/${req.params.tripID}/comments`
-          )
+          .collection(`/trips/${req.params.tripID}/comments`)
           .add(newComment)
           .then((doc) => {
             const resComment = newComment;
@@ -138,9 +136,7 @@ exports.createComment = (req, res) => {
 // Delete Comment
 
 exports.deleteComment = (req, res) => {
-  db.doc(
-    `/groups/${req.params.groupID}/trips/${req.params.tripID}/comments/${req.params.commentID}`
-  )
+  db.doc(`/trips/${req.params.tripID}/comments/${req.params.commentID}`)
     .get()
     .then((doc) => {
       if (!doc.exists) {
@@ -150,9 +146,7 @@ exports.deleteComment = (req, res) => {
         return res.status(403).json({ error: 'Unauthorized' });
       } else {
         return db
-          .doc(
-            `/groups/${req.params.groupID}/trips/${req.params.tripID}/comments/${req.params.commentID}`
-          )
+          .doc(`/trips/${req.params.tripID}/comments/${req.params.commentID}`)
           .delete()
           .then(() => {
             res.json({ message: 'Comment deleted successfully' });
@@ -183,20 +177,17 @@ exports.createPin = (req, res) => {
     createdAt: new Date().toISOString(),
     likeCount: 0,
     commentCount: 0,
-    groupID: req.params.groupID,
     tripID: req.params.tripID,
   };
 
-  db.doc(`/groups/${req.params.groupID}/trips/${req.params.tripID}`)
+  db.doc(`/trips/${req.params.tripID}`)
     .get()
     .then((doc) => {
       if (!doc.exists) {
         return res.status(404).json({ error: 'Trip not found' });
       } else {
         return db
-          .collection(
-            `/groups/${req.params.groupID}/trips/${req.params.tripID}/pins`
-          )
+          .collection(`/trips/${req.params.tripID}/pins`)
           .add(newPin)
           .then((doc) => {
             const resPin = newPin;
@@ -218,9 +209,7 @@ exports.createPin = (req, res) => {
 // Delete Pin
 
 exports.deletePin = (req, res) => {
-  db.doc(
-    `/groups/${req.params.groupID}/trips/${req.params.tripID}/pins/${req.params.pinID}`
-  )
+  db.doc(`/trips/${req.params.tripID}/pins/${req.params.pinID}`)
     .get()
     .then((doc) => {
       if (!doc.exists) {
@@ -230,9 +219,7 @@ exports.deletePin = (req, res) => {
         return res.status(403).json({ error: 'Unauthorized' });
       } else {
         return db
-          .doc(
-            `/groups/${req.params.groupID}/trips/${req.params.tripID}/pins/${req.params.pinID}`
-          )
+          .doc(`/trips/${req.params.tripID}/pins/${req.params.pinID}`)
           .delete()
           .then(() => {
             res.json({ message: 'Pin deleted successfully' });
@@ -246,5 +233,41 @@ exports.deletePin = (req, res) => {
     .catch((err) => {
       res.status(500).json({ error: 'Something went wrong' });
       console.error(err);
+    });
+};
+
+// Remove User From Trip
+
+exports.removeUserFromTrip = (req, res) => {
+  db.doc(`/trips/${req.params.tripID}`)
+    .get()
+    .then((doc) => {
+      if (!doc.exists) {
+        return res.status(404).json({ error: 'Trip not found' });
+      }
+      if (!doc.data().members.includes(req.params.userHandle)) {
+        return res
+          .status(404)
+          .json({ invite: 'That user is not a trip member' });
+      } else {
+        return db
+          .doc(`/trips/${req.params.tripID}`)
+          .update({
+            members: admin.firestore.FieldValue.arrayRemove(
+              req.params.userHandle
+            ),
+          })
+          .then(() => {
+            return res.json({ message: 'User removed from trip' });
+          })
+          .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.code });
+          });
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
     });
 };

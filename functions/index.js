@@ -5,14 +5,9 @@ const cors = require('cors');
 app.use(cors());
 
 const FBAuth = require('./utility/fbAuth');
-const groupAuth = require('./utility/groupAuth');
+const tripAuth = require('./utility/tripAuth');
 
 const { signup, login, getOwnUserDetails } = require('./handlers/users');
-const {
-  getGroup,
-  createGroup,
-  removeUserFromGroup,
-} = require('./handlers/groups');
 const {
   getTrip,
   createTrip,
@@ -20,6 +15,7 @@ const {
   deleteComment,
   createPin,
   deletePin,
+  removeUserFromTrip,
 } = require('./handlers/trips');
 const {
   inviteUser,
@@ -32,42 +28,28 @@ app.post('/signup', signup);
 app.post('/login', login);
 app.get('/user', FBAuth, getOwnUserDetails);
 
-// Group routes
-app.get('/groups/:groupID', FBAuth, getGroup);
-app.post('/groups', FBAuth, createGroup);
-app.delete(
-  '/groups/:groupID/users/:userHandle',
-  FBAuth,
-  groupAuth,
-  removeUserFromGroup
-);
-
 // Trip routes
-app.get('/groups/:groupID/trips/:tripID', FBAuth, groupAuth, getTrip);
-app.post('/groups/:groupID/trips', FBAuth, groupAuth, createTrip);
-app.post(
-  '/groups/:groupID/trips/:tripID/comment',
-  FBAuth,
-  groupAuth,
-  createComment
-);
+app.get('/trips/:tripID', FBAuth, tripAuth, getTrip);
+app.post('/trips', FBAuth, createTrip);
+app.post('/trips/:tripID/comment', FBAuth, tripAuth, createComment);
 app.delete(
-  '/groups/:groupID/trips/:tripID/comments/:commentID',
+  '/trips/:tripID/comments/:commentID',
   FBAuth,
-  groupAuth,
+  tripAuth,
   deleteComment
 );
-app.post('/groups/:groupID/trips/:tripID/pin', FBAuth, groupAuth, createPin);
+app.post('/trips/:tripID/pin', FBAuth, tripAuth, createPin);
+app.delete('/trips/:tripID/pins/:pinID', FBAuth, tripAuth, deletePin);
 app.delete(
-  '/groups/:groupID/trips/:tripID/pins/:pinID',
+  '/trips/:tripID/users/:userHandle',
   FBAuth,
-  groupAuth,
-  deletePin
+  tripAuth,
+  removeUserFromTrip
 );
 
 // Invite routes
-app.post('/groups/:groupID/invite', FBAuth, inviteUser);
-app.post('/groups/:groupID/invite/:inviteID', FBAuth, acceptInvite);
-app.delete('/groups/:groupID/invite/:inviteID', FBAuth, rejectInvite);
+app.post('/trips/:tripID/invite', FBAuth, inviteUser);
+app.post('/trips/:tripID/invite/:inviteID', FBAuth, acceptInvite);
+app.delete('/trips/:tripID/invite/:inviteID', FBAuth, rejectInvite);
 
 exports.api = functions.https.onRequest(app);
