@@ -11,10 +11,13 @@ const { signup, login, getOwnUserDetails } = require('./handlers/users');
 const {
   getTrip,
   createTrip,
+  deleteTrip,
   createComment,
   deleteComment,
   createPin,
   deletePin,
+  createItineraryItem,
+  deleteItineraryItem,
   removeUserFromTrip,
 } = require('./handlers/trips');
 const {
@@ -31,6 +34,7 @@ app.get('/user', FBAuth, getOwnUserDetails);
 // Trip routes
 app.get('/trips/:tripID', FBAuth, tripAuth, getTrip);
 app.post('/trips', FBAuth, createTrip);
+app.delete('/trips/:tripID', FBAuth, tripAuth, deleteTrip);
 app.post('/trips/:tripID/comment', FBAuth, tripAuth, createComment);
 app.delete(
   '/trips/:tripID/comments/:commentID',
@@ -40,6 +44,18 @@ app.delete(
 );
 app.post('/trips/:tripID/pin', FBAuth, tripAuth, createPin);
 app.delete('/trips/:tripID/pins/:pinID', FBAuth, tripAuth, deletePin);
+app.post(
+  '/trips/:tripID/itineraryitems',
+  FBAuth,
+  tripAuth,
+  createItineraryItem
+);
+app.delete(
+  '/trips/:tripID/itineraryitems/:itineraryItemID',
+  FBAuth,
+  tripAuth,
+  deleteItineraryItem
+);
 app.delete(
   '/trips/:tripID/users/:userHandle',
   FBAuth,
