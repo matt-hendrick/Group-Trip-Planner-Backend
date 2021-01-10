@@ -25,6 +25,7 @@ const {
   acceptInvite,
   rejectInvite,
 } = require('./handlers/invites');
+const { geocode, directions } = require('./handlers/mapbox');
 
 // User routes
 app.post('/signup', signup);
@@ -67,5 +68,9 @@ app.delete(
 app.post('/trips/:tripID/invite', FBAuth, inviteUser);
 app.post('/trips/:tripID/invite/:inviteID', FBAuth, acceptInvite);
 app.delete('/trips/:tripID/invite/:inviteID', FBAuth, rejectInvite);
+
+// MapBox routes
+app.post('/geocode', geocode);
+app.post('/directions', directions);
 
 exports.api = functions.https.onRequest(app);
