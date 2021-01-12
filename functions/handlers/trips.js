@@ -1,5 +1,7 @@
 const { db } = require('../utility/admin');
 
+const { reduceTripDetails } = require('../utility/validators');
+
 // get data for a trip
 
 exports.getTrip = (req, res) => {
@@ -105,6 +107,23 @@ exports.createTrip = (req, res) => {
     });
 };
 
+// Edit Trip Data
+exports.editTrip = (req, res) => {
+  if (req.body.tripName && req.body.tripName.trim() === '') {
+    return res.status(400).json({ tripName: 'Trip name must not be empty' });
+  }
+
+  db.doc(`/trips/${req.params.tripID}`)
+    .update(req.body)
+    .then(() => {
+      return res.json({ message: 'Trip details updated successfully' });
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
+};
+
 // Delete Trip
 
 exports.deleteTrip = (req, res) => {
@@ -194,13 +213,14 @@ exports.deleteComment = (req, res) => {
 // Create Pin
 
 exports.createPin = (req, res) => {
-  if (req.body.body.trim() === '') {
-    return res.status(400).json({ body: 'Body must not be empty' });
+  if (!req.body.coordinates) {
+    return res.status(400).json({ pin: 'A location must be selected' });
   }
 
   const newPin = {
-    body: req.body.body,
-    location: req.body.location ? req.body.location : null,
+    comment: req.body.comment ? req.body.comment : null,
+    coordinates: req.body.coordinates ? req.body.coordinates : null,
+    address: req.body.address ? req.body.address : null,
     userHandle: req.user.handle,
     createdAt: new Date().toISOString(),
     likeCount: 0,
@@ -339,6 +359,23 @@ exports.deleteItineraryItem = (req, res) => {
     .catch((err) => {
       res.status(500).json({ error: 'Something went wrong' });
       console.error(err);
+    });
+};
+
+// Edit Itinerary Item Data
+exports.editItineraryItem = (req, res) => {
+  db.doc(
+    `/trips/${req.params.tripID}/itineraryitems/${req.params.itineraryItemID}`
+  )
+    .update(req.body)
+    .then(() => {
+      return res.json({
+        message: 'Itinerary Item details updated successfully',
+      });
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
     });
 };
 

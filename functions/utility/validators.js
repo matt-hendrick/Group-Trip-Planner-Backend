@@ -37,10 +37,10 @@ exports.validateLoginData = (data) => {
   return { errors, valid: Object.keys(errors).length === 0 ? true : false };
 };
 
-exports.reduceUserDetails = (data) => {
-  let userDetails = {};
+// exports.reduceTripDetails = (data) => {
+//   let tripDetails = data;
 
-  if (!isEmpty(data.bio.trim())) userDetails.bio = data.bio;
+//   if (!isEmpty(data.tripName.trim())) tripDetails.tripName = data.tripName;
 
-  return userDetails;
-};
+//   return tripDetails;
+// };

@@ -11,6 +11,7 @@ const { signup, login, getOwnUserDetails } = require('./handlers/users');
 const {
   getTrip,
   createTrip,
+  editTrip,
   deleteTrip,
   createComment,
   deleteComment,
@@ -18,6 +19,7 @@ const {
   deletePin,
   createItineraryItem,
   deleteItineraryItem,
+  editItineraryItem,
   removeUserFromTrip,
 } = require('./handlers/trips');
 const {
@@ -35,6 +37,7 @@ app.get('/user', FBAuth, getOwnUserDetails);
 // Trip routes
 app.get('/trips/:tripID', FBAuth, tripAuth, getTrip);
 app.post('/trips', FBAuth, createTrip);
+app.post('/trips/:tripID', FBAuth, tripAuth, editTrip);
 app.delete('/trips/:tripID', FBAuth, tripAuth, deleteTrip);
 app.post('/trips/:tripID/comment', FBAuth, tripAuth, createComment);
 app.delete(
@@ -57,6 +60,12 @@ app.delete(
   tripAuth,
   deleteItineraryItem
 );
+app.post(
+  '/trips/:tripID/itineraryitems/:itineraryItemID',
+  FBAuth,
+  tripAuth,
+  editItineraryItem
+);
 app.delete(
   '/trips/:tripID/users/:userHandle',
   FBAuth,
@@ -70,7 +79,7 @@ app.post('/trips/:tripID/invite/:inviteID', FBAuth, acceptInvite);
 app.delete('/trips/:tripID/invite/:inviteID', FBAuth, rejectInvite);
 
 // MapBox routes
-app.post('/geocode', geocode);
-app.post('/directions', directions);
+app.post('/geocode', FBAuth, geocode);
+app.post('/directions', FBAuth, directions);
 
 exports.api = functions.https.onRequest(app);
