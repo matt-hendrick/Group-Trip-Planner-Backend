@@ -1,14 +1,11 @@
 const { db } = require('../utility/admin');
 
-const { reduceTripDetails } = require('../utility/validators');
-
 // get data for a trip
 
 exports.getTrip = (req, res) => {
   let tripData = {};
   let pinData = {};
-  let commentData = {};
-  let listData = {};
+  let listItemData = {};
   let itineraryData = {};
   db.doc(`/trips/${req.params.tripID}`)
     .get()
@@ -33,29 +30,16 @@ exports.getTrip = (req, res) => {
       });
       return db
         .doc(`/trips/${req.params.tripID}`)
-        .collection('comments')
+        .collection('listitems')
         .orderBy('createdAt', 'desc')
         .get();
     })
     .then((collection) => {
-      tripData.comments = [];
+      tripData.listItems = [];
       collection.forEach((doc) => {
-        commentData = doc.data();
-        commentData.commentID = doc.id;
-        tripData.comments.push(commentData);
-      });
-      return db
-        .doc(`/trips/${req.params.tripID}`)
-        .collection('lists')
-        .orderBy('createdAt', 'desc')
-        .get();
-    })
-    .then((collection) => {
-      tripData.lists = [];
-      collection.forEach((doc) => {
-        listData = doc.data();
-        listData.listID = doc.id;
-        tripData.lists.push(listData);
+        listItemData = doc.data();
+        listItemData.listItemID = doc.id;
+        tripData.listItems.push(listItemData);
       });
       return db
         .doc(`/trips/${req.params.tripID}`)
@@ -138,78 +122,6 @@ exports.deleteTrip = (req, res) => {
     });
 };
 
-// Create Comment
-
-exports.createComment = (req, res) => {
-  if (req.body.body.trim() === '') {
-    return res.status(400).json({ body: 'Body must not be empty' });
-  }
-
-  const newComment = {
-    body: req.body.body,
-    userHandle: req.user.handle,
-    createdAt: new Date().toISOString(),
-    likeCount: 0,
-    commentCount: 0,
-    tripID: req.params.tripID,
-  };
-
-  db.doc(`/trips/${req.params.tripID}`)
-    .get()
-    .then((doc) => {
-      if (!doc.exists) {
-        return res.status(404).json({ error: 'Trip not found' });
-      } else {
-        return db
-          .collection(`/trips/${req.params.tripID}/comments`)
-          .add(newComment)
-          .then((doc) => {
-            const resComment = newComment;
-            resComment.commentID = doc.id;
-            res.json(resComment);
-          })
-          .catch((err) => {
-            res.status(500).json({ error: 'Something went wrong' });
-            console.error(err);
-          });
-      }
-    })
-    .catch((err) => {
-      res.status(500).json({ error: 'Something went wrong' });
-      console.error(err);
-    });
-};
-
-// Delete Comment
-
-exports.deleteComment = (req, res) => {
-  db.doc(`/trips/${req.params.tripID}/comments/${req.params.commentID}`)
-    .get()
-    .then((doc) => {
-      if (!doc.exists) {
-        return res.status(404).json({ error: 'Comment not found' });
-      }
-      if (doc.data().userHandle !== req.user.handle) {
-        return res.status(403).json({ error: 'Unauthorized' });
-      } else {
-        return db
-          .doc(`/trips/${req.params.tripID}/comments/${req.params.commentID}`)
-          .delete()
-          .then(() => {
-            res.json({ message: 'Comment deleted successfully' });
-          })
-          .catch((err) => {
-            res.status(500).json({ error: 'Something went wrong' });
-            console.error(err);
-          });
-      }
-    })
-    .catch((err) => {
-      res.status(500).json({ error: 'Something went wrong' });
-      console.error(err);
-    });
-};
-
 // Create Pin
 
 exports.createPin = (req, res) => {
@@ -228,25 +140,12 @@ exports.createPin = (req, res) => {
     tripID: req.params.tripID,
   };
 
-  db.doc(`/trips/${req.params.tripID}`)
-    .get()
+  db.collection(`/trips/${req.params.tripID}/pins`)
+    .add(newPin)
     .then((doc) => {
-      if (!doc.exists) {
-        return res.status(404).json({ error: 'Trip not found' });
-      } else {
-        return db
-          .collection(`/trips/${req.params.tripID}/pins`)
-          .add(newPin)
-          .then((doc) => {
-            const resPin = newPin;
-            resPin.pinID = doc.id;
-            res.json(resPin);
-          })
-          .catch((err) => {
-            res.status(500).json({ error: 'Something went wrong' });
-            console.error(err);
-          });
-      }
+      const resPin = newPin;
+      resPin.pinID = doc.id;
+      res.json(resPin);
     })
     .catch((err) => {
       res.status(500).json({ error: 'Something went wrong' });
@@ -302,25 +201,12 @@ exports.createItineraryItem = (req, res) => {
     tripID: req.params.tripID,
   };
 
-  db.doc(`/trips/${req.params.tripID}`)
-    .get()
+  db.collection(`/trips/${req.params.tripID}/itineraryitems`)
+    .add(newItineraryItem)
     .then((doc) => {
-      if (!doc.exists) {
-        return res.status(404).json({ error: 'Trip not found' });
-      } else {
-        return db
-          .collection(`/trips/${req.params.tripID}/itineraryitems`)
-          .add(newItineraryItem)
-          .then((doc) => {
-            const resItineraryItem = newItineraryItem;
-            resItineraryItem.itineraryItemID = doc.id;
-            res.json(resItineraryItem);
-          })
-          .catch((err) => {
-            res.status(500).json({ error: 'Something went wrong' });
-            console.error(err);
-          });
-      }
+      const resItineraryItem = newItineraryItem;
+      resItineraryItem.itineraryItemID = doc.id;
+      res.json(resItineraryItem);
     })
     .catch((err) => {
       res.status(500).json({ error: 'Something went wrong' });

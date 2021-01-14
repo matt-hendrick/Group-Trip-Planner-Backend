@@ -13,8 +13,6 @@ const {
   createTrip,
   editTrip,
   deleteTrip,
-  createComment,
-  deleteComment,
   createPin,
   deletePin,
   createItineraryItem,
@@ -28,6 +26,7 @@ const {
   rejectInvite,
 } = require('./handlers/invites');
 const { geocode, directions } = require('./handlers/mapbox');
+const { createListItem, deleteListItem } = require('./handlers/lists');
 
 // User routes
 app.post('/signup', signup);
@@ -39,15 +38,12 @@ app.get('/trips/:tripID', FBAuth, tripAuth, getTrip);
 app.post('/trips', FBAuth, createTrip);
 app.post('/trips/:tripID', FBAuth, tripAuth, editTrip);
 app.delete('/trips/:tripID', FBAuth, tripAuth, deleteTrip);
-app.post('/trips/:tripID/comment', FBAuth, tripAuth, createComment);
-app.delete(
-  '/trips/:tripID/comments/:commentID',
-  FBAuth,
-  tripAuth,
-  deleteComment
-);
+
+// Pin routes
 app.post('/trips/:tripID/pin', FBAuth, tripAuth, createPin);
 app.delete('/trips/:tripID/pins/:pinID', FBAuth, tripAuth, deletePin);
+
+// Itinerary Routes
 app.post(
   '/trips/:tripID/itineraryitems',
   FBAuth,
@@ -66,17 +62,26 @@ app.post(
   tripAuth,
   editItineraryItem
 );
+
+// List routes
+app.post('/trips/:tripID/listitem', FBAuth, tripAuth, createListItem);
 app.delete(
-  '/trips/:tripID/users/:userHandle',
+  '/trips/:tripID/listitems/:listItemID',
   FBAuth,
   tripAuth,
-  removeUserFromTrip
+  deleteListItem
 );
 
 // Invite routes
 app.post('/trips/:tripID/invite', FBAuth, inviteUser);
 app.post('/trips/:tripID/invite/:inviteID', FBAuth, acceptInvite);
 app.delete('/trips/:tripID/invite/:inviteID', FBAuth, rejectInvite);
+app.delete(
+  '/trips/:tripID/users/:userHandle',
+  FBAuth,
+  tripAuth,
+  removeUserFromTrip
+);
 
 // MapBox routes
 app.post('/geocode', FBAuth, geocode);
