@@ -44,12 +44,7 @@ app.post('/trips/:tripID/pin', FBAuth, tripAuth, createPin);
 app.delete('/trips/:tripID/pins/:pinID', FBAuth, tripAuth, deletePin);
 
 // Itinerary Routes
-app.post(
-  '/trips/:tripID/itineraryitems',
-  FBAuth,
-  tripAuth,
-  createItineraryItem
-);
+app.post('/trips/:tripID/itineraryitem', FBAuth, tripAuth, createItineraryItem);
 app.delete(
   '/trips/:tripID/itineraryitems/:itineraryItemID',
   FBAuth,

@@ -15,6 +15,34 @@
       ]
     },
     {
+      "collectionGroup": "itineraryitems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "index",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "listitems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "likeCount",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
       "collectionGroup": "trips",
       "queryScope": "COLLECTION",
       "fields": [

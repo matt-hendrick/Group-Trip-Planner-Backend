@@ -31,6 +31,7 @@ exports.getTrip = (req, res) => {
       return db
         .doc(`/trips/${req.params.tripID}`)
         .collection('listitems')
+        .orderBy('likeCount', 'desc')
         .orderBy('createdAt', 'desc')
         .get();
     })
@@ -44,6 +45,7 @@ exports.getTrip = (req, res) => {
       return db
         .doc(`/trips/${req.params.tripID}`)
         .collection('itineraryitems')
+        .orderBy('index')
         .orderBy('createdAt', 'desc')
         .get();
     })
@@ -199,6 +201,7 @@ exports.createItineraryItem = (req, res) => {
     likeCount: 0,
     commentCount: 0,
     tripID: req.params.tripID,
+    index: 0,
   };
 
   db.collection(`/trips/${req.params.tripID}/itineraryitems`)
