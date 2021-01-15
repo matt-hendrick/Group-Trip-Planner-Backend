@@ -44,7 +44,6 @@ exports.signup = (req, res) => {
     })
     .then((idToken) => {
       token = idToken;
-      console.log(token);
       const userCredentials = {
         handle: newUser.handle,
         email: newUser.email,

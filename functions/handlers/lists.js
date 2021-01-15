@@ -3,8 +3,12 @@ const { db } = require('../utility/admin');
 // Create an List Item
 
 exports.createListItem = (req, res) => {
+  if (req.body.body && req.body.body.trim() === '') {
+    return res.status(400).json({ body: 'Body must not be empty' });
+  }
+
   const newListItem = {
-    body: req.body.body ? req.body.body : null,
+    body: req.body.body,
     link: req.body.link ? req.body.link : null,
     price: req.body.price ? req.body.price : null,
     location: req.body.location ? req.body.location : null,
