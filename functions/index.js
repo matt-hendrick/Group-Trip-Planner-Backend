@@ -13,13 +13,14 @@ const {
   createTrip,
   editTrip,
   deleteTrip,
-  createPin,
-  deletePin,
+  removeUserFromTrip,
+} = require('./handlers/trips');
+const { createPin, deletePin } = require('./handlers/pins');
+const {
   createItineraryItem,
   deleteItineraryItem,
   editItineraryItem,
-  removeUserFromTrip,
-} = require('./handlers/trips');
+} = require('./handlers/itinerary');
 const {
   inviteUser,
   acceptInvite,
