@@ -6,7 +6,6 @@ exports.getTrip = (req, res) => {
   let tripData = {};
   let pinData = {};
   let listItemData = {};
-  let itineraryData = {};
   db.doc(`/trips/${req.params.tripID}`)
     .get()
     .then((doc) => {
@@ -42,20 +41,6 @@ exports.getTrip = (req, res) => {
         listItemData.listItemID = doc.id;
         tripData.listItems.push(listItemData);
       });
-      return db
-        .doc(`/trips/${req.params.tripID}`)
-        .collection('itineraryitems')
-        .orderBy('index')
-        .orderBy('createdAt', 'desc')
-        .get();
-    })
-    .then((collection) => {
-      tripData.itineraryitems = [];
-      collection.forEach((doc) => {
-        itineraryData = doc.data();
-        itineraryData.itineraryItemID = doc.id;
-        tripData.itineraryitems.push(itineraryData);
-      });
       return res.json(tripData);
     })
     .catch((err) => {
@@ -79,6 +64,7 @@ exports.createTrip = (req, res) => {
     createdAt: new Date().toISOString(),
     members: [req.user.handle],
     pendingInvites: [],
+    itineraryItems: {},
   };
   db.collection(`/trips`)
     .add(newTrip)

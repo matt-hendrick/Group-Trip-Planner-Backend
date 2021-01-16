@@ -17,11 +17,6 @@ const {
 } = require('./handlers/trips');
 const { createPin, deletePin } = require('./handlers/pins');
 const {
-  createItineraryItem,
-  deleteItineraryItem,
-  editItineraryItem,
-} = require('./handlers/itinerary');
-const {
   inviteUser,
   acceptInvite,
   rejectInvite,
@@ -43,21 +38,6 @@ app.delete('/trips/:tripID', FBAuth, tripAuth, deleteTrip);
 // Pin routes
 app.post('/trips/:tripID/pin', FBAuth, tripAuth, createPin);
 app.delete('/trips/:tripID/pins/:pinID', FBAuth, tripAuth, deletePin);
-
-// Itinerary Routes
-app.post('/trips/:tripID/itineraryitem', FBAuth, tripAuth, createItineraryItem);
-app.delete(
-  '/trips/:tripID/itineraryitems/:itineraryItemID',
-  FBAuth,
-  tripAuth,
-  deleteItineraryItem
-);
-app.post(
-  '/trips/:tripID/itineraryitems/:itineraryItemID',
-  FBAuth,
-  tripAuth,
-  editItineraryItem
-);
 
 // List routes
 app.post('/trips/:tripID/listitem', FBAuth, tripAuth, createListItem);
