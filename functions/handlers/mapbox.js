@@ -1,11 +1,21 @@
 const request = require('request');
-const { db } = require('../utility/admin');
 
-exports.geocode = (req, res) => {
+exports.pinGeocode = (req, res) => {
   request(
     'https://api.mapbox.com/geocoding/v5/mapbox.places/' +
       req.body.address +
       '.json?access_token=pk.eyJ1IjoiZ3JvdXB0cmlwcGxhbm5lciIsImEiOiJja2pyNnF4cGIweXFkMnlwa3pwdmdoaW56In0.OrgMxKRGDBF73KUVTXb13Q',
+    (error, response, body) => {
+      res.send(JSON.parse(body));
+    }
+  );
+};
+
+exports.mapCenterGeocode = (req, res) => {
+  request(
+    'https://api.mapbox.com/geocoding/v5/mapbox.places/' +
+      req.body.address +
+      '.json?types=country,region,district,place&access_token=pk.eyJ1IjoiZ3JvdXB0cmlwcGxhbm5lciIsImEiOiJja2pyNnF4cGIweXFkMnlwa3pwdmdoaW56In0.OrgMxKRGDBF73KUVTXb13Q',
     (error, response, body) => {
       res.send(JSON.parse(body));
     }

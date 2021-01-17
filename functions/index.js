@@ -21,8 +21,17 @@ const {
   acceptInvite,
   rejectInvite,
 } = require('./handlers/invites');
-const { geocode, directions } = require('./handlers/mapbox');
-const { createListItem, deleteListItem } = require('./handlers/lists');
+const {
+  pinGeocode,
+  mapCenterGeocode,
+  directions,
+} = require('./handlers/mapbox');
+const {
+  createListItem,
+  deleteListItem,
+  likeListItem,
+  unlikeListItem,
+} = require('./handlers/lists');
 
 // User routes
 app.post('/signup', signup);
@@ -47,6 +56,18 @@ app.delete(
   tripAuth,
   deleteListItem
 );
+app.post(
+  '/trips/:tripID/listitems/:listItemID/like',
+  FBAuth,
+  tripAuth,
+  likeListItem
+);
+app.post(
+  '/trips/:tripID/listitems/:listItemID/unlike',
+  FBAuth,
+  tripAuth,
+  unlikeListItem
+);
 
 // Invite routes
 app.post('/trips/:tripID/invite', FBAuth, inviteUser);
@@ -60,7 +81,8 @@ app.delete(
 );
 
 // MapBox routes
-app.post('/geocode', FBAuth, geocode);
+app.post('/pinGeocode', FBAuth, pinGeocode);
+app.post('/mapCenterGeocode', FBAuth, mapCenterGeocode);
 app.post('/directions', FBAuth, directions);
 
 exports.api = functions.https.onRequest(app);

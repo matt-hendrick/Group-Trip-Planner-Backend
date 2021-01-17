@@ -1,4 +1,4 @@
-const { db } = require('../utility/admin');
+const { db, admin } = require('../utility/admin');
 
 // Create an List Item
 
@@ -15,8 +15,7 @@ exports.createListItem = (req, res) => {
     date: req.body.date ? req.body.date : null,
     userHandle: req.user.handle,
     createdAt: new Date().toISOString(),
-    likeCount: 0,
-    commentCount: 0,
+    likes: [],
     tripID: req.params.tripID,
     listType: req.body.listType,
   };
@@ -61,5 +60,61 @@ exports.deleteListItem = (req, res) => {
     .catch((err) => {
       res.status(500).json({ error: 'Something went wrong' });
       console.error(err);
+    });
+};
+
+// Like List Item
+exports.likeListItem = (req, res) => {
+  const likeDocument = db.doc(
+    `/trips/${req.params.tripID}/listitems/${req.params.listItemID}`
+  );
+
+  likeDocument
+    .get()
+    .then((doc) => {
+      if (doc.data().likes.includes(req.user.handle)) {
+        return res
+          .status(404)
+          .json({ likes: 'That user already liked that list item' });
+      } else
+        return likeDocument
+          .update({
+            likes: admin.firestore.FieldValue.arrayUnion(req.user.handle),
+          })
+          .then(() => {
+            return res.json({ message: 'List item liked' });
+          });
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
+};
+
+// Unlike List Item
+exports.unlikeListItem = (req, res) => {
+  const likeDocument = db.doc(
+    `/trips/${req.params.tripID}/listitems/${req.params.listItemID}`
+  );
+
+  likeDocument
+    .get()
+    .then((doc) => {
+      if (!doc.data().likes.includes(req.user.handle)) {
+        return res
+          .status(404)
+          .json({ likes: 'That user has not liked that list item' });
+      } else
+        return likeDocument
+          .update({
+            likes: admin.firestore.FieldValue.arrayRemove(req.user.handle),
+          })
+          .then(() => {
+            return res.json({ message: 'List item unliked' });
+          });
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
     });
 };

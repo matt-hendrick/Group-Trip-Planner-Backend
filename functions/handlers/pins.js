@@ -13,8 +13,6 @@ exports.createPin = (req, res) => {
     address: req.body.address ? req.body.address : null,
     userHandle: req.user.handle,
     createdAt: new Date().toISOString(),
-    likeCount: 0,
-    commentCount: 0,
     tripID: req.params.tripID,
   };
 
