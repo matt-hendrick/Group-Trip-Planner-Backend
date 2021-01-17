@@ -30,7 +30,6 @@ exports.getTrip = (req, res) => {
       return db
         .doc(`/trips/${req.params.tripID}`)
         .collection('listitems')
-        .orderBy('likeCount', 'desc')
         .orderBy('createdAt', 'desc')
         .get();
     })
