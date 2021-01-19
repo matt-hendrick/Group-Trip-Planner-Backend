@@ -3,8 +3,8 @@ const { db, admin } = require('../utility/admin');
 // Create an List Item
 
 exports.createListItem = (req, res) => {
-  if (req.body.body && req.body.body.trim() === '') {
-    return res.status(400).json({ body: 'Body must not be empty' });
+  if (req.body.body.trim() === '') {
+    return res.status(400).json({ body: 'List item body must not be empty' });
   }
 
   const newListItem = {
@@ -50,10 +50,6 @@ exports.deleteListItem = (req, res) => {
           .delete()
           .then(() => {
             res.json({ message: 'List Item deleted successfully' });
-          })
-          .catch((err) => {
-            res.status(500).json({ error: 'Something went wrong' });
-            console.error(err);
           });
       }
     })

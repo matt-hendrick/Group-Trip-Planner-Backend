@@ -46,10 +46,6 @@ exports.deletePin = (req, res) => {
           .delete()
           .then(() => {
             res.json({ message: 'Pin deleted successfully' });
-          })
-          .catch((err) => {
-            res.status(500).json({ error: 'Something went wrong' });
-            console.error(err);
           });
       }
     })

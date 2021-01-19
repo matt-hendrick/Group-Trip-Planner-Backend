@@ -52,16 +52,8 @@ exports.inviteUser = (req, res) => {
                 })
                 .then(() => {
                   return res.json({ message: 'Invite Sent' });
-                })
-                .catch((err) => {
-                  console.error(err);
-                  return res.status(500).json({ error: err.code });
                 });
             }
-          })
-          .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
           });
       }
     })
@@ -114,15 +106,7 @@ exports.acceptInvite = (req, res) => {
               })
               .then(() => {
                 return res.json({ message: 'Invite Accepted' });
-              })
-              .catch((err) => {
-                console.error(err);
-                return res.status(500).json({ error: err.code });
               });
-          })
-          .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
           });
       }
     })
@@ -174,15 +158,7 @@ exports.rejectInvite = (req, res) => {
               })
               .then(() => {
                 return res.json({ message: 'Invite Rejected' });
-              })
-              .catch((err) => {
-                console.error(err);
-                return res.status(500).json({ error: err.code });
               });
-          })
-          .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
           });
       }
     })

@@ -132,10 +132,6 @@ exports.removeUserFromTrip = (req, res) => {
           })
           .then(() => {
             return res.json({ message: 'User removed from trip' });
-          })
-          .catch((err) => {
-            console.error(err);
-            return res.status(500).json({ error: err.code });
           });
       }
     })
