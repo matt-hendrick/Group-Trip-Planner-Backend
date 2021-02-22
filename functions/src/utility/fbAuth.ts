@@ -1,6 +1,11 @@
-const { admin, db } = require('./admin');
+import { admin, db } from './admin';
+import { NextFunction, Request, Response } from 'express';
 
-module.exports = (req, res, next) => {
+const fbAuth = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Response | void => {
   let idToken;
   if (
     req.headers.authorization &&
@@ -32,3 +37,5 @@ module.exports = (req, res, next) => {
       return res.status(403).json(err);
     });
 };
+
+export default fbAuth;

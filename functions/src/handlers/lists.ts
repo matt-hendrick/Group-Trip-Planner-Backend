@@ -16,7 +16,6 @@ interface NewListItem {
 }
 
 // Create an List Item
-
 export const createListItem = (
   req: Request,
   res: Response
@@ -104,7 +103,7 @@ export const likeListItem = (req: Request, res: Response) => {
 };
 
 // Unlike List Item
-exports.unlikeListItem = (req: Request, res: Response) => {
+export const unlikeListItem = (req: Request, res: Response) => {
   const likeDocument = db.doc(
     `/trips/${req.params.tripID}/listitems/${req.params.listItemID}`
   );

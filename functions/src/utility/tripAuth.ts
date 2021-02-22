@@ -1,13 +1,14 @@
-const { db } = require('./admin');
+import { db } from './admin';
+import { NextFunction, Request, Response } from 'express';
 
-module.exports = (req, res, next) => {
+const tripAuth = (req: Request, res: Response, next: NextFunction) => {
   db.doc(`/trips/${req.params.tripID}`)
     .get()
     .then((doc) => {
       if (!doc.exists) {
         return res.status(404).json({ error: 'Trip not found' });
       }
-      if (!doc.data().members.includes(req.user.handle)) {
+      if (!doc.data()?.members.includes(req.user.handle)) {
         return res.status(403).json({ user: 'User is not a trip member' });
       } else return next();
     })
@@ -16,3 +17,5 @@ module.exports = (req, res, next) => {
       return res.status(403).json(err);
     });
 };
+
+export default tripAuth;

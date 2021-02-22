@@ -1,18 +1,40 @@
-const { db } = require('../utility/admin');
+import { db, admin } from '../utility/admin';
+import { Request, Response } from 'express';
+
+interface NewTrip {
+  tripName: string;
+  createdBy: string;
+  destination: number[];
+  mapZoomLevel: number;
+  createdAt: string;
+  members: string[];
+  pendingInvites: string[];
+  itineraryItems: ItineraryDictionary;
+  tripID?: string;
+}
+
+interface ItineraryItem {
+  createdAt: string;
+  userHandle: string;
+  body: string;
+}
+
+interface ItineraryDictionary {
+  [key: number]: ItineraryItem;
+}
 
 // get data for a trip
-
-exports.getTrip = (req, res) => {
-  let tripData = {};
-  let pinData = {};
-  let listItemData = {};
+export const getTrip = (req: Request, res: Response) => {
+  let tripData: FirebaseFirestore.DocumentData;
+  let pinData: FirebaseFirestore.DocumentData;
+  let listItemData: FirebaseFirestore.DocumentData;
   db.doc(`/trips/${req.params.tripID}`)
     .get()
-    .then((doc) => {
+    .then((doc): Response | PromiseLike<any> => {
       if (!doc.exists) {
         return res.status(404).json({ error: 'Trip not found' });
       }
-      tripData = doc.data();
+      tripData = doc.data() as FirebaseFirestore.DocumentData;
       tripData.tripID = doc.id;
       return db
         .doc(`/trips/${req.params.tripID}`)
@@ -20,9 +42,9 @@ exports.getTrip = (req, res) => {
         .orderBy('createdAt', 'desc')
         .get();
     })
-    .then((collection) => {
+    .then((collection: FirebaseFirestore.DocumentData) => {
       tripData.pins = [];
-      collection.forEach((doc) => {
+      collection.forEach((doc: FirebaseFirestore.DocumentData) => {
         pinData = doc.data();
         pinData.pinID = doc.id;
         tripData.pins.push(pinData);
@@ -49,13 +71,12 @@ exports.getTrip = (req, res) => {
 };
 
 // Create Trip
-
-exports.createTrip = (req, res) => {
+export const createTrip = (req: Request, res: Response): Response | void => {
   if (req.body.tripName.trim() === '') {
     return res.status(400).json({ tripName: 'Trip name must not be empty' });
   }
 
-  const newTrip = {
+  const newTrip: NewTrip = {
     tripName: req.body.tripName,
     createdBy: req.user.handle,
     destination: req.body.destination ? req.body.destination : null,
@@ -63,7 +84,7 @@ exports.createTrip = (req, res) => {
     createdAt: new Date().toISOString(),
     members: [req.user.handle],
     pendingInvites: [],
-    itineraryItems: {},
+    itineraryItems: {} as ItineraryDictionary,
   };
   db.collection(`/trips`)
     .add(newTrip)
@@ -79,7 +100,7 @@ exports.createTrip = (req, res) => {
 };
 
 // Edit Trip Data
-exports.editTrip = (req, res) => {
+export const editTrip = (req: Request, res: Response): Response | void => {
   if (req.body.tripName && req.body.tripName.trim() === '') {
     return res.status(400).json({ tripName: 'Trip name must not be empty' });
   }
@@ -96,8 +117,7 @@ exports.editTrip = (req, res) => {
 };
 
 // Delete Trip
-
-exports.deleteTrip = (req, res) => {
+export const deleteTrip = (req: Request, res: Response) => {
   db.doc(`/trips/${req.params.tripID}`)
     .delete()
     .then(() => {
@@ -110,15 +130,14 @@ exports.deleteTrip = (req, res) => {
 };
 
 // Remove User From Trip
-
-exports.removeUserFromTrip = (req, res) => {
+export const removeUserFromTrip = (req: Request, res: Response) => {
   db.doc(`/trips/${req.params.tripID}`)
     .get()
     .then((doc) => {
       if (!doc.exists) {
         return res.status(404).json({ error: 'Trip not found' });
       }
-      if (!doc.data().members.includes(req.params.userHandle)) {
+      if (!doc.data()?.members.includes(req.params.userHandle)) {
         return res
           .status(404)
           .json({ invite: 'That user is not a trip member' });
