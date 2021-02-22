@@ -110,6 +110,7 @@ const login = (req, res) => {
     });
 };
 exports.login = login;
+// Gets the logged in user's user, trip, and invite data
 const getOwnUserDetails = (req, res) => {
     let userData;
     let tripData;

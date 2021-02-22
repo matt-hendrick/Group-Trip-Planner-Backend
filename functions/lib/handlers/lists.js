@@ -1,7 +1,9 @@
 "use strict";
-const { db, admin } = require('../utility/admin');
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.unlikeListItem = exports.likeListItem = exports.deleteListItem = exports.createListItem = void 0;
+const admin_1 = require("../utility/admin");
 // Create an List Item
-exports.createListItem = (req, res) => {
+const createListItem = (req, res) => {
     if (req.body.body.trim() === '') {
         return res.status(400).json({ body: 'List item body must not be empty' });
     }
@@ -17,7 +19,7 @@ exports.createListItem = (req, res) => {
         tripID: req.params.tripID,
         listType: req.body.listType,
     };
-    db.collection(`/trips/${req.params.tripID}/listitems`)
+    admin_1.db.collection(`/trips/${req.params.tripID}/listitems`)
         .add(newListItem)
         .then((doc) => {
         const resListItem = newListItem;
@@ -29,19 +31,21 @@ exports.createListItem = (req, res) => {
         console.error(err);
     });
 };
+exports.createListItem = createListItem;
 // Delete List Item
-exports.deleteListItem = (req, res) => {
-    db.doc(`/trips/${req.params.tripID}/listitems/${req.params.listItemID}`)
+const deleteListItem = (req, res) => {
+    admin_1.db.doc(`/trips/${req.params.tripID}/listitems/${req.params.listItemID}`)
         .get()
         .then((doc) => {
+        var _a;
         if (!doc.exists) {
             return res.status(404).json({ error: 'List Item not found' });
         }
-        if (doc.data().userHandle !== req.user.handle) {
+        else if (((_a = doc.data()) === null || _a === void 0 ? void 0 : _a.userHandle) !== req.user.handle) {
             return res.status(403).json({ error: 'Unauthorized' });
         }
         else {
-            return db
+            return admin_1.db
                 .doc(`/trips/${req.params.tripID}/listitems/${req.params.listItemID}`)
                 .delete()
                 .then(() => {
@@ -54,13 +58,15 @@ exports.deleteListItem = (req, res) => {
         console.error(err);
     });
 };
+exports.deleteListItem = deleteListItem;
 // Like List Item
-exports.likeListItem = (req, res) => {
-    const likeDocument = db.doc(`/trips/${req.params.tripID}/listitems/${req.params.listItemID}`);
+const likeListItem = (req, res) => {
+    const likeDocument = admin_1.db.doc(`/trips/${req.params.tripID}/listitems/${req.params.listItemID}`);
     likeDocument
         .get()
         .then((doc) => {
-        if (doc.data().likes.includes(req.user.handle)) {
+        var _a;
+        if ((_a = doc.data()) === null || _a === void 0 ? void 0 : _a.likes.includes(req.user.handle)) {
             return res
                 .status(404)
                 .json({ likes: 'That user already liked that list item' });
@@ -68,7 +74,7 @@ exports.likeListItem = (req, res) => {
         else
             return likeDocument
                 .update({
-                likes: admin.firestore.FieldValue.arrayUnion(req.user.handle),
+                likes: admin_1.admin.firestore.FieldValue.arrayUnion(req.user.handle),
             })
                 .then(() => {
                 return res.json({ message: 'List item liked' });
@@ -79,13 +85,15 @@ exports.likeListItem = (req, res) => {
         return res.status(500).json({ error: err.code });
     });
 };
+exports.likeListItem = likeListItem;
 // Unlike List Item
-exports.unlikeListItem = (req, res) => {
-    const likeDocument = db.doc(`/trips/${req.params.tripID}/listitems/${req.params.listItemID}`);
+const unlikeListItem = (req, res) => {
+    const likeDocument = admin_1.db.doc(`/trips/${req.params.tripID}/listitems/${req.params.listItemID}`);
     likeDocument
         .get()
         .then((doc) => {
-        if (!doc.data().likes.includes(req.user.handle)) {
+        var _a;
+        if (!((_a = doc.data()) === null || _a === void 0 ? void 0 : _a.likes.includes(req.user.handle))) {
             return res
                 .status(404)
                 .json({ likes: 'That user has not liked that list item' });
@@ -93,7 +101,7 @@ exports.unlikeListItem = (req, res) => {
         else
             return likeDocument
                 .update({
-                likes: admin.firestore.FieldValue.arrayRemove(req.user.handle),
+                likes: admin_1.admin.firestore.FieldValue.arrayRemove(req.user.handle),
             })
                 .then(() => {
                 return res.json({ message: 'List item unliked' });
@@ -104,4 +112,5 @@ exports.unlikeListItem = (req, res) => {
         return res.status(500).json({ error: err.code });
     });
 };
+exports.unlikeListItem = unlikeListItem;
 //# sourceMappingURL=lists.js.map

@@ -1,11 +1,13 @@
 "use strict";
-const { db } = require('../utility/admin');
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.removeUserFromTrip = exports.deleteTrip = exports.editTrip = exports.createTrip = exports.getTrip = void 0;
+const admin_1 = require("../utility/admin");
 // get data for a trip
-exports.getTrip = (req, res) => {
-    let tripData = {};
-    let pinData = {};
-    let listItemData = {};
-    db.doc(`/trips/${req.params.tripID}`)
+const getTrip = (req, res) => {
+    let tripData;
+    let pinData;
+    let listItemData;
+    admin_1.db.doc(`/trips/${req.params.tripID}`)
         .get()
         .then((doc) => {
         if (!doc.exists) {
@@ -13,7 +15,7 @@ exports.getTrip = (req, res) => {
         }
         tripData = doc.data();
         tripData.tripID = doc.id;
-        return db
+        return admin_1.db
             .doc(`/trips/${req.params.tripID}`)
             .collection('pins')
             .orderBy('createdAt', 'desc')
@@ -26,7 +28,7 @@ exports.getTrip = (req, res) => {
             pinData.pinID = doc.id;
             tripData.pins.push(pinData);
         });
-        return db
+        return admin_1.db
             .doc(`/trips/${req.params.tripID}`)
             .collection('listitems')
             .orderBy('createdAt', 'desc')
@@ -46,8 +48,9 @@ exports.getTrip = (req, res) => {
         res.status(500).json({ error: err.code });
     });
 };
+exports.getTrip = getTrip;
 // Create Trip
-exports.createTrip = (req, res) => {
+const createTrip = (req, res) => {
     if (req.body.tripName.trim() === '') {
         return res.status(400).json({ tripName: 'Trip name must not be empty' });
     }
@@ -61,7 +64,7 @@ exports.createTrip = (req, res) => {
         pendingInvites: [],
         itineraryItems: {},
     };
-    db.collection(`/trips`)
+    admin_1.db.collection(`/trips`)
         .add(newTrip)
         .then((doc) => {
         const resTrip = newTrip;
@@ -73,12 +76,13 @@ exports.createTrip = (req, res) => {
         console.error(err);
     });
 };
+exports.createTrip = createTrip;
 // Edit Trip Data
-exports.editTrip = (req, res) => {
+const editTrip = (req, res) => {
     if (req.body.tripName && req.body.tripName.trim() === '') {
         return res.status(400).json({ tripName: 'Trip name must not be empty' });
     }
-    db.doc(`/trips/${req.params.tripID}`)
+    admin_1.db.doc(`/trips/${req.params.tripID}`)
         .update(req.body)
         .then(() => {
         return res.json({ message: 'Trip details updated successfully' });
@@ -88,9 +92,10 @@ exports.editTrip = (req, res) => {
         return res.status(500).json({ error: err.code });
     });
 };
+exports.editTrip = editTrip;
 // Delete Trip
-exports.deleteTrip = (req, res) => {
-    db.doc(`/trips/${req.params.tripID}`)
+const deleteTrip = (req, res) => {
+    admin_1.db.doc(`/trips/${req.params.tripID}`)
         .delete()
         .then(() => {
         res.json({ message: 'Trip deleted successfully' });
@@ -100,24 +105,26 @@ exports.deleteTrip = (req, res) => {
         console.error(err);
     });
 };
+exports.deleteTrip = deleteTrip;
 // Remove User From Trip
-exports.removeUserFromTrip = (req, res) => {
-    db.doc(`/trips/${req.params.tripID}`)
+const removeUserFromTrip = (req, res) => {
+    admin_1.db.doc(`/trips/${req.params.tripID}`)
         .get()
         .then((doc) => {
+        var _a;
         if (!doc.exists) {
             return res.status(404).json({ error: 'Trip not found' });
         }
-        if (!doc.data().members.includes(req.params.userHandle)) {
+        if (!((_a = doc.data()) === null || _a === void 0 ? void 0 : _a.members.includes(req.params.userHandle))) {
             return res
                 .status(404)
                 .json({ invite: 'That user is not a trip member' });
         }
         else {
-            return db
+            return admin_1.db
                 .doc(`/trips/${req.params.tripID}`)
                 .update({
-                members: admin.firestore.FieldValue.arrayRemove(req.params.userHandle),
+                members: admin_1.admin.firestore.FieldValue.arrayRemove(req.params.userHandle),
             })
                 .then(() => {
                 return res.json({ message: 'User removed from trip' });
@@ -129,4 +136,5 @@ exports.removeUserFromTrip = (req, res) => {
         return res.status(500).json({ error: err.code });
     });
 };
+exports.removeUserFromTrip = removeUserFromTrip;
 //# sourceMappingURL=trips.js.map

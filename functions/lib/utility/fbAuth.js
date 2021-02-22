@@ -1,6 +1,7 @@
 "use strict";
-const { admin, db } = require('./admin');
-module.exports = (req, res, next) => {
+Object.defineProperty(exports, "__esModule", { value: true });
+const admin_1 = require("./admin");
+const fbAuth = (req, res, next) => {
     let idToken;
     if (req.headers.authorization &&
         req.headers.authorization.startsWith('Bearer ')) {
@@ -10,12 +11,12 @@ module.exports = (req, res, next) => {
         console.error('No token found');
         return res.status(403).json({ error: 'Unauthorized' });
     }
-    admin
+    admin_1.admin
         .auth()
         .verifyIdToken(idToken)
         .then((decodedToken) => {
         req.user = decodedToken;
-        return db
+        return admin_1.db
             .collection('users')
             .where('userID', '==', req.user.uid)
             .limit(1)
@@ -30,4 +31,5 @@ module.exports = (req, res, next) => {
         return res.status(403).json(err);
     });
 };
+exports.default = fbAuth;
 //# sourceMappingURL=fbAuth.js.map

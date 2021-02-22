@@ -6,8 +6,8 @@ let app = express();
 import cors = require('cors');
 app.use(cors());
 
-import FBAuth = require('./utility/fbAuth');
-import tripAuth = require('./utility/tripAuth');
+import fbAuth from './utility/fbAuth';
+import tripAuth from './utility/tripAuth';
 
 import { signup, login, getOwnUserDetails } from './handlers/users';
 import {
@@ -30,53 +30,53 @@ import {
 // User routes
 app.post('/signup', signup);
 app.post('/login', login);
-app.get('/user', FBAuth, getOwnUserDetails);
+app.get('/user', fbAuth, getOwnUserDetails);
 
 // Trip routes
-app.get('/trips/:tripID', FBAuth, tripAuth, getTrip);
-app.post('/trips', FBAuth, createTrip);
-app.post('/trips/:tripID', FBAuth, tripAuth, editTrip);
-app.delete('/trips/:tripID', FBAuth, tripAuth, deleteTrip);
+app.get('/trips/:tripID', fbAuth, tripAuth, getTrip);
+app.post('/trips', fbAuth, createTrip);
+app.post('/trips/:tripID', fbAuth, tripAuth, editTrip);
+app.delete('/trips/:tripID', fbAuth, tripAuth, deleteTrip);
 
 // Pin routes
-app.post('/trips/:tripID/pin', FBAuth, tripAuth, createPin);
-app.delete('/trips/:tripID/pins/:pinID', FBAuth, tripAuth, deletePin);
+app.post('/trips/:tripID/pin', fbAuth, tripAuth, createPin);
+app.delete('/trips/:tripID/pins/:pinID', fbAuth, tripAuth, deletePin);
 
 // List routes
-app.post('/trips/:tripID/listitem', FBAuth, tripAuth, createListItem);
+app.post('/trips/:tripID/listitem', fbAuth, tripAuth, createListItem);
 app.delete(
   '/trips/:tripID/listitems/:listItemID',
-  FBAuth,
+  fbAuth,
   tripAuth,
   deleteListItem
 );
 app.post(
   '/trips/:tripID/listitems/:listItemID/like',
-  FBAuth,
+  fbAuth,
   tripAuth,
   likeListItem
 );
 app.post(
   '/trips/:tripID/listitems/:listItemID/unlike',
-  FBAuth,
+  fbAuth,
   tripAuth,
   unlikeListItem
 );
 
 // Invite routes
-app.post('/trips/:tripID/invite', FBAuth, inviteUser);
-app.post('/trips/:tripID/invite/:inviteID', FBAuth, acceptInvite);
-app.delete('/trips/:tripID/invite/:inviteID', FBAuth, rejectInvite);
+app.post('/trips/:tripID/invite', fbAuth, inviteUser);
+app.post('/trips/:tripID/invite/:inviteID', fbAuth, acceptInvite);
+app.delete('/trips/:tripID/invite/:inviteID', fbAuth, rejectInvite);
 app.delete(
   '/trips/:tripID/users/:userHandle',
-  FBAuth,
+  fbAuth,
   tripAuth,
   removeUserFromTrip
 );
 
 // MapBox routes
-app.post('/pinGeocode', FBAuth, pinGeocode);
-app.post('/mapCenterGeocode', FBAuth, mapCenterGeocode);
-app.post('/directions', FBAuth, directions);
+app.post('/pinGeocode', fbAuth, pinGeocode);
+app.post('/mapCenterGeocode', fbAuth, mapCenterGeocode);
+app.post('/directions', fbAuth, directions);
 
 exports.api = functions.https.onRequest(app);
