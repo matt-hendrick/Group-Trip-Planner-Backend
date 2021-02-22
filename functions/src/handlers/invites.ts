@@ -1,10 +1,19 @@
-const { db, admin } = require('../utility/admin');
+import { db, admin } from '../utility/admin';
+import { Request, Response } from 'express';
+
+interface InviteData {
+  recipient: string;
+  sender: string;
+  createdAt: string;
+  tripID: string;
+  tripName?: string;
+}
 
 // Invite User
 
-exports.inviteUser = (req, res) => {
+export const inviteUser = (req: Request, res: Response) => {
   let tripName = '';
-  const inviteData = {
+  const inviteData: InviteData = {
     recipient: req.body.recipient,
     sender: req.user.handle,
     createdAt: new Date().toISOString(),
@@ -16,20 +25,20 @@ exports.inviteUser = (req, res) => {
       if (!doc.exists) {
         return res.status(404).json({ error: 'Trip not found' });
       }
-      if (!doc.data().members.includes(req.user.handle)) {
+      if (!doc.data()?.members.includes(req.user.handle)) {
         return res.status(403).json({ user: 'User is not a trip member' });
       }
-      if (doc.data().members.includes(req.body.recipient)) {
+      if (doc.data()?.members.includes(req.body.recipient)) {
         return res
           .status(404)
           .json({ invite: 'That user is already a trip member' });
       }
-      if (doc.data().pendingInvites.includes(req.body.recipient)) {
+      if (doc.data()?.pendingInvites.includes(req.body.recipient)) {
         return res
           .status(404)
           .json({ invite: 'That user has already been invited to the trip' });
       } else {
-        tripName = doc.data().tripName;
+        tripName = doc.data()?.tripName;
         return db
           .doc(`/users/${req.body.recipient}`)
           .get()
@@ -65,19 +74,19 @@ exports.inviteUser = (req, res) => {
 
 // Accept Invite
 
-exports.acceptInvite = (req, res) => {
+export const acceptInvite = (req: Request, res: Response) => {
   db.doc(`/trips/${req.params.tripID}`)
     .get()
     .then((doc) => {
       if (!doc.exists) {
         return res.status(404).json({ error: 'Trip not found' });
       }
-      if (doc.data().members.includes(req.user.handle)) {
+      if (doc.data()?.members.includes(req.user.handle)) {
         return res
           .status(404)
           .json({ invite: 'That user is already a trip member' });
       }
-      if (!doc.data().pendingInvites.includes(req.user.handle)) {
+      if (!doc.data()?.pendingInvites.includes(req.user.handle)) {
         return res
           .status(404)
           .json({ invite: 'That user has not been invited to the trip' });
@@ -94,11 +103,11 @@ exports.acceptInvite = (req, res) => {
             return db
               .doc(`/invites/${req.params.inviteID}`)
               .get()
-              .then((doc) => {
+              .then((doc): PromiseLike<any> | Response => {
                 if (!doc.exists) {
                   return res.status(404).json({ error: 'Invite not found' });
                 }
-                if (doc.data().recipient !== req.user.handle) {
+                if (doc.data()?.recipient !== req.user.handle) {
                   return res.status(403).json({ error: 'Unauthorized' });
                 } else {
                   return db.doc(`/invites/${req.params.inviteID}`).delete();
@@ -118,19 +127,19 @@ exports.acceptInvite = (req, res) => {
 
 // Reject Invite
 
-exports.rejectInvite = (req, res) => {
+export const rejectInvite = (req: Request, res: Response) => {
   db.doc(`/trips/${req.params.tripID}`)
     .get()
     .then((doc) => {
       if (!doc.exists) {
         return res.status(404).json({ error: 'Trip not found' });
       }
-      if (doc.data().members.includes(req.user.handle)) {
+      if (doc.data()?.members.includes(req.user.handle)) {
         return res
           .status(404)
           .json({ invite: 'That user is already a trip member' });
       }
-      if (!doc.data().pendingInvites.includes(req.user.handle)) {
+      if (!doc.data()?.pendingInvites.includes(req.user.handle)) {
         return res
           .status(404)
           .json({ invite: 'That user has not been invited to the trip' });
@@ -146,11 +155,11 @@ exports.rejectInvite = (req, res) => {
             return db
               .doc(`/invites/${req.params.inviteID}`)
               .get()
-              .then((doc) => {
+              .then((doc): PromiseLike<any> | Response => {
                 if (!doc.exists) {
                   return res.status(404).json({ error: 'Invite not found' });
                 }
-                if (doc.data().recipient !== req.user.handle) {
+                if (doc.data()?.recipient !== req.user.handle) {
                   return res.status(403).json({ error: 'Unauthorized' });
                 } else {
                   return db.doc(`/invites/${req.params.inviteID}`).delete();

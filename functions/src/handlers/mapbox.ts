@@ -1,6 +1,7 @@
-const request = require('request');
+import request = require('request');
+import { Request, Response } from 'express';
 
-exports.pinGeocode = (req, res) => {
+export const pinGeocode = (req: Request, res: Response) => {
   request(
     'https://api.mapbox.com/geocoding/v5/mapbox.places/' +
       req.body.address +
@@ -11,7 +12,7 @@ exports.pinGeocode = (req, res) => {
   );
 };
 
-exports.mapCenterGeocode = (req, res) => {
+export const mapCenterGeocode = (req: Request, res: Response) => {
   request(
     'https://api.mapbox.com/geocoding/v5/mapbox.places/' +
       req.body.address +
@@ -22,7 +23,7 @@ exports.mapCenterGeocode = (req, res) => {
   );
 };
 
-exports.directions = (req, res) => {
+export const directions = (req: Request, res: Response) => {
   const route = req.body.coordinates.join(';');
   request(
     'https://api.mapbox.com/directions/v5/mapbox/' +

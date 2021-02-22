@@ -1,13 +1,24 @@
-const { db } = require('../utility/admin');
+import { db } from '../utility/admin';
+import { Request, Response } from 'express';
+
+interface NewPin {
+  comment?: string | null;
+  coordinates?: number[] | null;
+  address?: string | null;
+  userHandle: string;
+  createdAt: string;
+  tripID: string;
+  pinID?: string;
+}
 
 // Create Pin
 
-exports.createPin = (req, res) => {
+export const createPin = (req: Request, res: Response): void | Response => {
   if (!req.body.coordinates) {
     return res.status(400).json({ pin: 'A location must be selected' });
   }
 
-  const newPin = {
+  const newPin: NewPin = {
     comment: req.body.comment ? req.body.comment : null,
     coordinates: req.body.coordinates ? req.body.coordinates : null,
     address: req.body.address ? req.body.address : null,
@@ -31,14 +42,14 @@ exports.createPin = (req, res) => {
 
 // Delete Pin
 
-exports.deletePin = (req, res) => {
+export const deletePin = (req: Request, res: Response) => {
   db.doc(`/trips/${req.params.tripID}/pins/${req.params.pinID}`)
     .get()
-    .then((doc) => {
+    .then((doc): void | PromiseLike<void> | Response => {
       if (!doc.exists) {
         return res.status(404).json({ error: 'Pin not found' });
       }
-      if (doc.data().userHandle !== req.user.handle) {
+      if (doc.data()?.userHandle !== req.user.handle) {
         return res.status(403).json({ error: 'Unauthorized' });
       } else {
         return db
