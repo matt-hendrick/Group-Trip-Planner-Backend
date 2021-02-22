@@ -12,7 +12,6 @@ interface NewPin {
 }
 
 // Create Pin
-
 export const createPin = (req: Request, res: Response): void | Response => {
   if (!req.body.coordinates) {
     return res.status(400).json({ pin: 'A location must be selected' });
@@ -41,7 +40,6 @@ export const createPin = (req: Request, res: Response): void | Response => {
 };
 
 // Delete Pin
-
 export const deletePin = (req: Request, res: Response) => {
   db.doc(`/trips/${req.params.tripID}/pins/${req.params.pinID}`)
     .get()

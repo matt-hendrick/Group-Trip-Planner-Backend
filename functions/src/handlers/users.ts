@@ -1,19 +1,28 @@
-const { db, admin } = require('../utility/admin');
+import { db } from '../utility/admin';
 
-const config = require('../utility/config');
+import config from '../utility/config';
 
-const firebase = require('firebase');
+import firebase from 'firebase';
 firebase.initializeApp(config);
 
-const {
-  validateSignupData,
-  validateLoginData,
-} = require('../utility/validators');
+import { validateSignupData, validateLoginData } from '../utility/validators';
+import { Request, Response } from 'express';
+
+interface NewUser {
+  email: string;
+  password: string;
+  confirmPassword: string;
+  handle: string;
+}
+
+interface LoginUser {
+  email: string;
+  password: string;
+}
 
 // sign up new user
-
-exports.signup = (req, res) => {
-  const newUser = {
+export const signup = (req: Request, res: Response): Response | void => {
+  const newUser: NewUser = {
     email: req.body.email,
     password: req.body.password,
     confirmPassword: req.body.confirmPassword,
@@ -24,10 +33,11 @@ exports.signup = (req, res) => {
 
   if (!valid) return res.status(400).json(errors);
 
-  let token, userID;
+  let token = '';
+  let userID = '';
   db.doc(`/users/${newUser.handle}`)
     .get()
-    .then((doc) => {
+    .then((doc): Response | PromiseLike<any> => {
       if (doc.exists) {
         return res
           .status(400)
@@ -38,11 +48,17 @@ exports.signup = (req, res) => {
           .createUserWithEmailAndPassword(newUser.email, newUser.password);
       }
     })
-    .then((data) => {
-      userID = data.user.uid;
-      return data.user.getIdToken();
+    .then((data: firebase.auth.UserCredential): Promise<any> | Response => {
+      if (data.user) {
+        userID = data!.user.uid;
+        return data!.user.getIdToken();
+      } else {
+        return res
+          .status(400)
+          .json({ userID: 'There was an error setting up a userID' });
+      }
     })
-    .then((idToken) => {
+    .then((idToken: string) => {
       token = idToken;
       const userCredentials = {
         handle: newUser.handle,
@@ -68,9 +84,8 @@ exports.signup = (req, res) => {
 };
 
 // log user in
-
-exports.login = (req, res) => {
-  const user = {
+export const login = (req: Request, res: Response): Response | void => {
+  const user: LoginUser = {
     email: req.body.email,
     password: req.body.password,
   };
@@ -82,10 +97,16 @@ exports.login = (req, res) => {
   firebase
     .auth()
     .signInWithEmailAndPassword(user.email, user.password)
-    .then((data) => {
-      return data.user.getIdToken();
+    .then((data): Promise<any> | Response => {
+      if (data.user) {
+        return data.user.getIdToken();
+      } else {
+        return res
+          .status(400)
+          .json({ userID: 'There was an error setting up a userID' });
+      }
     })
-    .then((token) => {
+    .then((token: string) => {
       return res.json({ token });
     })
     .catch((err) => {
@@ -100,13 +121,14 @@ exports.login = (req, res) => {
     });
 };
 
-exports.getOwnUserDetails = (req, res) => {
-  let userData = {};
-  let tripData = {};
-  let inviteData = {};
+// Gets the logged in user's user, trip, and invite data
+export const getOwnUserDetails = (req: Request, res: Response) => {
+  let userData: FirebaseFirestore.DocumentData;
+  let tripData: FirebaseFirestore.DocumentData;
+  let inviteData: FirebaseFirestore.DocumentData;
   db.doc(`/users/${req.user.handle}`)
     .get()
-    .then((doc) => {
+    .then((doc): PromiseLike<any> | Response => {
       if (doc.exists) {
         userData.credentials = doc.data();
         return db
@@ -118,9 +140,9 @@ exports.getOwnUserDetails = (req, res) => {
         return res.status(404).json({ error: 'User not found' });
       }
     })
-    .then((collection) => {
+    .then((collection: FirebaseFirestore.DocumentData) => {
       userData.trips = [];
-      collection.forEach((doc) => {
+      collection.forEach((doc: FirebaseFirestore.DocumentData) => {
         tripData = doc.data();
         tripData.tripID = doc.id;
         userData.trips.push(tripData);

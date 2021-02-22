@@ -10,7 +10,6 @@ interface InviteData {
 }
 
 // Invite User
-
 export const inviteUser = (req: Request, res: Response) => {
   let tripName = '';
   const inviteData: InviteData = {
@@ -73,7 +72,6 @@ export const inviteUser = (req: Request, res: Response) => {
 };
 
 // Accept Invite
-
 export const acceptInvite = (req: Request, res: Response) => {
   db.doc(`/trips/${req.params.tripID}`)
     .get()
@@ -126,7 +124,6 @@ export const acceptInvite = (req: Request, res: Response) => {
 };
 
 // Reject Invite
-
 export const rejectInvite = (req: Request, res: Response) => {
   db.doc(`/trips/${req.params.tripID}`)
     .get()

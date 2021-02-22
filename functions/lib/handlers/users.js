@@ -1,22 +1,25 @@
 "use strict";
-const { db, admin } = require('../utility/admin');
-const config = require('../utility/config');
-const firebase = require('firebase');
-firebase.initializeApp(config);
-const { validateSignupData, validateLoginData, } = require('../utility/validators');
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getOwnUserDetails = exports.login = exports.signup = void 0;
+const admin_1 = require("../utility/admin");
+const config_1 = require("../utility/config");
+const firebase_1 = require("firebase");
+firebase_1.default.initializeApp(config_1.default);
+const validators_1 = require("../utility/validators");
 // sign up new user
-exports.signup = (req, res) => {
+const signup = (req, res) => {
     const newUser = {
         email: req.body.email,
         password: req.body.password,
         confirmPassword: req.body.confirmPassword,
         handle: req.body.handle,
     };
-    const { valid, errors } = validateSignupData(newUser);
+    const { valid, errors } = validators_1.validateSignupData(newUser);
     if (!valid)
         return res.status(400).json(errors);
-    let token, userID;
-    db.doc(`/users/${newUser.handle}`)
+    let token = '';
+    let userID = '';
+    admin_1.db.doc(`/users/${newUser.handle}`)
         .get()
         .then((doc) => {
         if (doc.exists) {
@@ -25,14 +28,21 @@ exports.signup = (req, res) => {
                 .json({ handle: 'this user handle is already taken' });
         }
         else {
-            return firebase
+            return firebase_1.default
                 .auth()
                 .createUserWithEmailAndPassword(newUser.email, newUser.password);
         }
     })
         .then((data) => {
-        userID = data.user.uid;
-        return data.user.getIdToken();
+        if (data.user) {
+            userID = data.user.uid;
+            return data.user.getIdToken();
+        }
+        else {
+            return res
+                .status(400)
+                .json({ userID: 'There was an error setting up a userID' });
+        }
     })
         .then((idToken) => {
         token = idToken;
@@ -42,7 +52,7 @@ exports.signup = (req, res) => {
             createdAt: new Date().toISOString(),
             userID,
         };
-        return db.doc(`/users/${newUser.handle}`).set(userCredentials);
+        return admin_1.db.doc(`/users/${newUser.handle}`).set(userCredentials);
     })
         .then(() => {
         return res.status(201).json({ token });
@@ -59,20 +69,28 @@ exports.signup = (req, res) => {
         }
     });
 };
+exports.signup = signup;
 // log user in
-exports.login = (req, res) => {
+const login = (req, res) => {
     const user = {
         email: req.body.email,
         password: req.body.password,
     };
-    const { valid, errors } = validateLoginData(user);
+    const { valid, errors } = validators_1.validateLoginData(user);
     if (!valid)
         return res.status(400).json(errors);
-    firebase
+    firebase_1.default
         .auth()
         .signInWithEmailAndPassword(user.email, user.password)
         .then((data) => {
-        return data.user.getIdToken();
+        if (data.user) {
+            return data.user.getIdToken();
+        }
+        else {
+            return res
+                .status(400)
+                .json({ userID: 'There was an error setting up a userID' });
+        }
     })
         .then((token) => {
         return res.json({ token });
@@ -91,16 +109,17 @@ exports.login = (req, res) => {
             return res.status(500).json({ error: err.code });
     });
 };
-exports.getOwnUserDetails = (req, res) => {
-    let userData = {};
-    let tripData = {};
-    let inviteData = {};
-    db.doc(`/users/${req.user.handle}`)
+exports.login = login;
+const getOwnUserDetails = (req, res) => {
+    let userData;
+    let tripData;
+    let inviteData;
+    admin_1.db.doc(`/users/${req.user.handle}`)
         .get()
         .then((doc) => {
         if (doc.exists) {
             userData.credentials = doc.data();
-            return db
+            return admin_1.db
                 .collection('trips')
                 .where('members', 'array-contains', req.user.handle)
                 .orderBy('createdAt', 'desc')
@@ -117,7 +136,7 @@ exports.getOwnUserDetails = (req, res) => {
             tripData.tripID = doc.id;
             userData.trips.push(tripData);
         });
-        return db
+        return admin_1.db
             .collection('invites')
             .where('recipient', '==', req.user.handle)
             .orderBy('createdAt', 'desc')
@@ -137,4 +156,5 @@ exports.getOwnUserDetails = (req, res) => {
         return res.status(500).json({ error: err.code });
     });
 };
+exports.getOwnUserDetails = getOwnUserDetails;
 //# sourceMappingURL=users.js.map

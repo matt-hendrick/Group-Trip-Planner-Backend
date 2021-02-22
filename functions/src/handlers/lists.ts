@@ -1,13 +1,31 @@
-const { db, admin } = require('../utility/admin');
+import { db, admin } from '../utility/admin';
+import { Request, Response } from 'express';
+
+interface NewListItem {
+  body: string;
+  link: string;
+  price: number;
+  location: number[];
+  date: string;
+  userHandle: string;
+  createdAt: string;
+  likes: string[];
+  tripID: string;
+  listType: string;
+  listItemID?: string;
+}
 
 // Create an List Item
 
-exports.createListItem = (req, res) => {
+export const createListItem = (
+  req: Request,
+  res: Response
+): Response | void => {
   if (req.body.body.trim() === '') {
     return res.status(400).json({ body: 'List item body must not be empty' });
   }
 
-  const newListItem = {
+  const newListItem: NewListItem = {
     body: req.body.body,
     link: req.body.link ? req.body.link : null,
     price: req.body.price ? req.body.price : null,
@@ -34,15 +52,13 @@ exports.createListItem = (req, res) => {
 };
 
 // Delete List Item
-
-exports.deleteListItem = (req, res) => {
+export const deleteListItem = (req: Request, res: Response) => {
   db.doc(`/trips/${req.params.tripID}/listitems/${req.params.listItemID}`)
     .get()
-    .then((doc) => {
+    .then((doc): Response | PromiseLike<any> => {
       if (!doc.exists) {
         return res.status(404).json({ error: 'List Item not found' });
-      }
-      if (doc.data().userHandle !== req.user.handle) {
+      } else if (doc.data()?.userHandle !== req.user.handle) {
         return res.status(403).json({ error: 'Unauthorized' });
       } else {
         return db
@@ -60,7 +76,7 @@ exports.deleteListItem = (req, res) => {
 };
 
 // Like List Item
-exports.likeListItem = (req, res) => {
+export const likeListItem = (req: Request, res: Response) => {
   const likeDocument = db.doc(
     `/trips/${req.params.tripID}/listitems/${req.params.listItemID}`
   );
@@ -68,7 +84,7 @@ exports.likeListItem = (req, res) => {
   likeDocument
     .get()
     .then((doc) => {
-      if (doc.data().likes.includes(req.user.handle)) {
+      if (doc.data()?.likes.includes(req.user.handle)) {
         return res
           .status(404)
           .json({ likes: 'That user already liked that list item' });
@@ -88,7 +104,7 @@ exports.likeListItem = (req, res) => {
 };
 
 // Unlike List Item
-exports.unlikeListItem = (req, res) => {
+exports.unlikeListItem = (req: Request, res: Response) => {
   const likeDocument = db.doc(
     `/trips/${req.params.tripID}/listitems/${req.params.listItemID}`
   );
@@ -96,7 +112,7 @@ exports.unlikeListItem = (req, res) => {
   likeDocument
     .get()
     .then((doc) => {
-      if (!doc.data().likes.includes(req.user.handle)) {
+      if (!doc.data()?.likes.includes(req.user.handle)) {
         return res
           .status(404)
           .json({ likes: 'That user has not liked that list item' });
