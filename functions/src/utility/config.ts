@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   apiKey: 'AIzaSyC_Bqnd1LD6HoX2ruCZAmynb6Acv4GT0Ko',
   authDomain: 'grouptripplannerbackend.firebaseapp.com',
   projectId: 'grouptripplannerbackend',

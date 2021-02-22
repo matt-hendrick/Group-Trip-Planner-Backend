@@ -1,37 +1,31 @@
-const functions = require('firebase-functions');
-const app = require('express')();
+import functions = require('firebase-functions');
+import express = require('express');
 
-const cors = require('cors');
+let app = express();
+
+import cors = require('cors');
 app.use(cors());
 
-const FBAuth = require('./utility/fbAuth');
-const tripAuth = require('./utility/tripAuth');
+import FBAuth = require('./utility/fbAuth');
+import tripAuth = require('./utility/tripAuth');
 
-const { signup, login, getOwnUserDetails } = require('./handlers/users');
-const {
+import { signup, login, getOwnUserDetails } from './handlers/users';
+import {
   getTrip,
   createTrip,
   editTrip,
   deleteTrip,
   removeUserFromTrip,
-} = require('./handlers/trips');
-const { createPin, deletePin } = require('./handlers/pins');
-const {
-  inviteUser,
-  acceptInvite,
-  rejectInvite,
-} = require('./handlers/invites');
-const {
-  pinGeocode,
-  mapCenterGeocode,
-  directions,
-} = require('./handlers/mapbox');
-const {
+} from './handlers/trips';
+import { createPin, deletePin } from './handlers/pins';
+import { inviteUser, acceptInvite, rejectInvite } from './handlers/invites';
+import { pinGeocode, mapCenterGeocode, directions } from './handlers/mapbox';
+import {
   createListItem,
   deleteListItem,
   likeListItem,
   unlikeListItem,
-} = require('./handlers/lists');
+} from './handlers/lists';
 
 // User routes
 app.post('/signup', signup);

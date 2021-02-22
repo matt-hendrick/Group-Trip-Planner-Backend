@@ -1,16 +1,28 @@
-const isEmail = (email) => {
+interface SignupUserData {
+  email: string;
+  password: string;
+  confirmPassword: string;
+  handle: string;
+}
+
+interface LoginUserData {
+  email: string;
+  password: string;
+}
+
+export const isEmail = (email: string) => {
   const emailRegEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   if (email.match(emailRegEx)) return true;
   else return false;
 };
 
-const isEmpty = (string) => {
+export const isEmpty = (string: string) => {
   if (string.trim() === '') return true;
   else return false;
 };
 
-exports.validateSignupData = (data) => {
-  let errors = {};
+export const validateSignupData = (data: SignupUserData) => {
+  let errors = {} as SignupUserData;
 
   if (isEmpty(data.email)) {
     errors.email = 'Must not be empty';
@@ -28,19 +40,11 @@ exports.validateSignupData = (data) => {
   return { errors, valid: Object.keys(errors).length === 0 ? true : false };
 };
 
-exports.validateLoginData = (data) => {
-  let errors = {};
+export const validateLoginData = (data: LoginUserData) => {
+  let errors = {} as LoginUserData;
 
   if (isEmpty(data.email)) errors.email = 'Must not be empty';
   if (isEmpty(data.password)) errors.password = 'Must not be empty';
 
   return { errors, valid: Object.keys(errors).length === 0 ? true : false };
 };
-
-// exports.reduceTripDetails = (data) => {
-//   let tripDetails = data;
-
-//   if (!isEmpty(data.tripName.trim())) tripDetails.tripName = data.tripName;
-
-//   return tripDetails;
-// };
