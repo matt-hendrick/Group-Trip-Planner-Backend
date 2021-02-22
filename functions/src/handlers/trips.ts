@@ -25,9 +25,9 @@ interface ItineraryDictionary {
 
 // get data for a trip
 export const getTrip = (req: Request, res: Response) => {
-  let tripData: FirebaseFirestore.DocumentData;
-  let pinData: FirebaseFirestore.DocumentData;
-  let listItemData: FirebaseFirestore.DocumentData;
+  let tripData = {} as FirebaseFirestore.DocumentData;
+  let pinData = {} as FirebaseFirestore.DocumentData;
+  let listItemData = {} as FirebaseFirestore.DocumentData;
   db.doc(`/trips/${req.params.tripID}`)
     .get()
     .then((doc): Response | PromiseLike<any> => {

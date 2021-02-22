@@ -112,9 +112,9 @@ const login = (req, res) => {
 exports.login = login;
 // Gets the logged in user's user, trip, and invite data
 const getOwnUserDetails = (req, res) => {
-    let userData;
-    let tripData;
-    let inviteData;
+    let userData = {};
+    let tripData = {};
+    let inviteData = {};
     admin_1.db.doc(`/users/${req.user.handle}`)
         .get()
         .then((doc) => {

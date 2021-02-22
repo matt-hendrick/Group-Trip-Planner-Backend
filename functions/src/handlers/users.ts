@@ -123,9 +123,9 @@ export const login = (req: Request, res: Response): Response | void => {
 
 // Gets the logged in user's user, trip, and invite data
 export const getOwnUserDetails = (req: Request, res: Response) => {
-  let userData: FirebaseFirestore.DocumentData;
-  let tripData: FirebaseFirestore.DocumentData;
-  let inviteData: FirebaseFirestore.DocumentData;
+  let userData = {} as FirebaseFirestore.DocumentData;
+  let tripData = {} as FirebaseFirestore.DocumentData;
+  let inviteData = {} as FirebaseFirestore.DocumentData;
   db.doc(`/users/${req.user.handle}`)
     .get()
     .then((doc): PromiseLike<any> | Response => {

@@ -4,9 +4,9 @@ exports.removeUserFromTrip = exports.deleteTrip = exports.editTrip = exports.cre
 const admin_1 = require("../utility/admin");
 // get data for a trip
 const getTrip = (req, res) => {
-    let tripData;
-    let pinData;
-    let listItemData;
+    let tripData = {};
+    let pinData = {};
+    let listItemData = {};
     admin_1.db.doc(`/trips/${req.params.tripID}`)
         .get()
         .then((doc) => {
