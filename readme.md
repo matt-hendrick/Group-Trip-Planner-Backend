@@ -15,6 +15,10 @@ Pass: demo12345
 
 [This video demo](https://youtube.com/watch?v=IYfwnjsngSc) provides a brief look at Group Trip Planner's features.
 
+## Front End Repo Link
+
+Link to the [Group Trip Planner front end GitHub repo](https://github.com/matt-hendrick/group-trip-planner-frontend)
+
 ## Installation and Setup Instructions
 
 Installation:
