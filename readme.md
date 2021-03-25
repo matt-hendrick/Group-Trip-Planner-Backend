@@ -13,7 +13,7 @@ Pass: demo12345
 
 ## Video Demo
 
-[This video demo](https://youtube.com/watch?v=IYfwnjsngSc) provides a brief look at Group Trip Planner's features.
+[This video demo](https://www.youtube.com/watch?v=XMnCGUklqWE) provides a brief look at Group Trip Planner's features.
 
 ## Front End Repo Link
 
