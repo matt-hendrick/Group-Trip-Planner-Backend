@@ -1,8 +1,8 @@
 # Group Trip Planner
 
-[Group Trip Planner](https://prototypetripplanner.web.app) is a full stack, collaborative, trip-planning web app that allows users to map, comment, and organize a trip. Users can create, join, edit, and delete groups. The app implements user and group authentication.
+[Group Trip Planner](https://prototypetripplanner.web.app) is a full stack, collaborative, trip-planning website that allows users to map, comment, and organize a trip. Users can create, join, edit, and delete groups. The site implements user and group authentication.
 
-The Group Trip Planner backend was built with TypeScript 4.1.5, Firebase 8.2.1, and Express 4.17.1.
+The Group Trip Planner backend was built with TypeScript, Firebase 8.2.1, and Express 4.17.1.
 
 ## Demo User Login
 
